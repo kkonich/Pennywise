@@ -29,8 +29,11 @@ services:
         condition: service_healthy
     environment:
       ConnectionStrings__Pennywise: Host=db;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ASPNETCORE_ENVIRONMENT: Development
     env_file:
       - .env
+    ports:
+      - "8081:8080"
 
   adminer:
     container_name: adminer

@@ -1,21 +1,48 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Pennywise.Application.Interfaces;
 using Pennywise.Infrastructure.Data;
+using Pennywise.Infrastructure.Repositories;
 
-var host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
+var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("Pennywise");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Missing connection string 'Pennywise'.");
+}
+
+builder.Services.AddDbContext<PennywiseDbContext>(options =>
+    options.UseNpgsql(connectionString, npgsql =>
+        npgsql.MigrationsAssembly(typeof(PennywiseDbContext).Assembly.FullName)));
+
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
     {
-        var connectionString = context.Configuration.GetConnectionString("Pennywise");
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException("Missing connection string 'Pennywise'.");
-        }
+        options.IncludeXmlComments(xmlPath);
+    }
+});
 
-        services.AddDbContext<PennywiseDbContext>(options =>
-            options.UseNpgsql(connectionString));
-    })
-    .Build();
+var app = builder.Build();
 
-Console.WriteLine("Pennywise configured. DB context is ready.");
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<PennywiseDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.MapControllers();
+
+app.Run();

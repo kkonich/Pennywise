@@ -51,7 +51,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             Name = "Main",
             CurrencyCode = "EUR",
-            OpeningBalance = 100m,
+            Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -62,7 +62,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         Assert.NotNull(fetched);
         Assert.Equal("Main", fetched!.Name);
         Assert.Equal("EUR", fetched.CurrencyCode);
-        Assert.Equal(100m, fetched.OpeningBalance);
+        Assert.Equal(100m, fetched.Balance);
     }
     
     [Fact(DisplayName = "GetAllAsync returns persisted accounts")]
@@ -76,7 +76,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             Name = "Savings",
             CurrencyCode = "EUR",
-            OpeningBalance = 0m,
+            Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         });
         await repository.AddAsync(new Account
@@ -84,7 +84,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             Name = "Cash",
             CurrencyCode = "EUR",
-            OpeningBalance = 0m,
+            Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         });
     
@@ -106,14 +106,14 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             Name = "Main",
             CurrencyCode = "EUR",
-            OpeningBalance = 100m,
+            Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
     
         await repository.AddAsync(account);
     
         account.Name = "Main Updated";
-        account.OpeningBalance = 250m;
+        account.Balance = 250m;
     
         await repository.UpdateAsync(account);
     
@@ -121,7 +121,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
     
         Assert.NotNull(fetched);
         Assert.Equal("Main Updated", fetched!.Name);
-        Assert.Equal(250m, fetched.OpeningBalance);
+        Assert.Equal(250m, fetched.Balance);
     }
     
     [Fact(DisplayName =  "DeleteAsync deletes account")]
@@ -135,7 +135,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             Name = "Main",
             CurrencyCode = "EUR",
-            OpeningBalance = 100m,
+            Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
     

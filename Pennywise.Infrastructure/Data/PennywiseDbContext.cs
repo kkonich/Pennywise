@@ -19,7 +19,7 @@ public sealed class PennywiseDbContext : DbContext
             entity.HasKey(account => account.Id);
             entity.Property(account => account.Name).HasMaxLength(200);
             entity.Property(account => account.CurrencyCode).HasMaxLength(3);
-            entity.Property(account => account.OpeningBalance).HasPrecision(18, 2);
+            entity.Property(account => account.Balance).HasPrecision(18, 2);
         });
     }
 }
