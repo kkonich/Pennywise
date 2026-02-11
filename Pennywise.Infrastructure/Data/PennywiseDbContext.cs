@@ -11,6 +11,7 @@ public sealed class PennywiseDbContext : DbContext
     }
 
     public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +21,12 @@ public sealed class PennywiseDbContext : DbContext
             entity.Property(account => account.Name).HasMaxLength(200);
             entity.Property(account => account.CurrencyCode).HasMaxLength(3);
             entity.Property(account => account.Balance).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(category => category.Id);
+            entity.ToTable("Category");
         });
     }
 }
