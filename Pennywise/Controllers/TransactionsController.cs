@@ -73,7 +73,6 @@ public sealed class TransactionsController : ControllerBase
             CategoryId = request.CategoryId,
             BookedOn = request.BookedOn,
             Amount = request.Amount,
-            Type = request.Type,
             Note = request.Note,
             Merchant = request.Merchant,
             CreatedAt = DateTimeOffset.UtcNow
@@ -101,7 +100,6 @@ public sealed class TransactionsController : ControllerBase
         transaction.CategoryId = request.CategoryId;
         transaction.BookedOn = request.BookedOn;
         transaction.Amount = request.Amount;
-        transaction.Type = request.Type;
         transaction.Note = request.Note;
         transaction.Merchant = request.Merchant;
 
@@ -134,7 +132,6 @@ public sealed class TransactionsController : ControllerBase
             CategoryId = transaction.CategoryId,
             BookedOn = transaction.BookedOn,
             Amount = transaction.Amount,
-            Type = transaction.Type,
             Note = transaction.Note,
             Merchant = transaction.Merchant,
             CreatedAt = transaction.CreatedAt

@@ -1,5 +1,3 @@
-using Pennywise.Domain.Entities;
-
 namespace Pennywise.Contracts.Transactions;
 
 /// <summary>
@@ -31,11 +29,6 @@ public sealed class TransactionResponse
     /// Transaction amount.
     /// </summary>
     public decimal Amount { get; set; }
-
-    /// <summary>
-    /// Transaction type (expense or income).
-    /// </summary>
-    public TransactionType Type { get; set; }
 
     /// <summary>
     /// Note for the transaction.

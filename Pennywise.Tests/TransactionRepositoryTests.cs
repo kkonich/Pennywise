@@ -55,7 +55,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 12.50m,
-            Type = TransactionType.Expense,
             Note = "Lunch",
             Merchant = "Cafe",
             CreatedAt = DateTimeOffset.UtcNow
@@ -69,7 +68,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         Assert.Equal(transaction.AccountId, fetched!.AccountId);
         Assert.Equal(transaction.CategoryId, fetched.CategoryId);
         Assert.Equal(12.50m, fetched.Amount);
-        Assert.Equal(TransactionType.Expense, fetched.Type);
         Assert.Equal("Lunch", fetched.Note);
         Assert.Equal("Cafe", fetched.Merchant);
     }
@@ -90,7 +88,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 5m,
-            Type = TransactionType.Expense,
             Note = "Coffee",
             Merchant = "Cafe",
             CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-2)
@@ -102,7 +99,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 11),
             Amount = 50m,
-            Type = TransactionType.Expense,
             Note = "Groceries",
             Merchant = "Market",
             CreatedAt = DateTimeOffset.UtcNow
@@ -114,7 +110,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 20m,
-            Type = TransactionType.Expense,
             Note = "Dinner",
             Merchant = "Bistro",
             CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-1)
@@ -144,7 +139,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 12.50m,
-            Type = TransactionType.Expense,
             Note = "Lunch",
             Merchant = "Cafe",
             CreatedAt = DateTimeOffset.UtcNow
@@ -183,7 +177,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 11),
             Amount = 15m,
-            Type = TransactionType.Expense,
             Note = "Groceries",
             Merchant = "Market",
             CreatedAt = DateTimeOffset.UtcNow
@@ -195,7 +188,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 20m,
-            Type = TransactionType.Expense,
             Note = "Other",
             Merchant = "Shop",
             CreatedAt = DateTimeOffset.UtcNow
@@ -207,7 +199,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 5m,
-            Type = TransactionType.Expense,
             Note = "Coffee",
             Merchant = "Cafe",
             CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-5)
@@ -237,7 +228,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CategoryId = category.Id,
             BookedOn = new DateOnly(2026, 2, 10),
             Amount = 12.50m,
-            Type = TransactionType.Expense,
             Note = "Lunch",
             Merchant = "Cafe",
             CreatedAt = DateTimeOffset.UtcNow
