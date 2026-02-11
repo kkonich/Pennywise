@@ -17,6 +17,7 @@ builder.Services.AddDbContext<PennywiseDbContext>(options =>
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

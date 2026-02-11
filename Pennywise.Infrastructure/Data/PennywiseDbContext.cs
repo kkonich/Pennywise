@@ -12,6 +12,7 @@ public sealed class PennywiseDbContext : DbContext
 
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,12 @@ public sealed class PennywiseDbContext : DbContext
         {
             entity.HasKey(category => category.Id);
             entity.ToTable("Category");
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(transaction => transaction.Id);
+            entity.ToTable("Transaction");
         });
     }
 }
