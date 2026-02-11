@@ -8,9 +8,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pennywise.Application", "Pe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pennywise.Infrastructure", "Pennywise.Infrastructure\Pennywise.Infrastructure.csproj", "{A07B6F5D-9C10-4B91-B76C-3F7D8A0D3D5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pennywise.Tests", "Pennywise.Tests\Pennywise.Tests.csproj", "{D4B4E5F8-4F4D-4A7A-9D0C-8BFD4C3E9E3F}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BBA04D52-263A-4919-B0FB-4AE6C18E1E63}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yaml = docker-compose.yaml
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Global
@@ -35,5 +38,9 @@ Global
 		{A07B6F5D-9C10-4B91-B76C-3F7D8A0D3D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A07B6F5D-9C10-4B91-B76C-3F7D8A0D3D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A07B6F5D-9C10-4B91-B76C-3F7D8A0D3D5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4B4E5F8-4F4D-4A7A-9D0C-8BFD4C3E9E3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B4E5F8-4F4D-4A7A-9D0C-8BFD4C3E9E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B4E5F8-4F4D-4A7A-9D0C-8BFD4C3E9E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B4E5F8-4F4D-4A7A-9D0C-8BFD4C3E9E3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
