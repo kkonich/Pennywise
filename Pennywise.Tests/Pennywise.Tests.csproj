@@ -8,11 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pennywise\Pennywise.csproj" />
     <ProjectReference Include="..\Pennywise.Infrastructure\Pennywise.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="3.9.0" />
     <PackageReference Include="xunit" Version="2.7.1" />

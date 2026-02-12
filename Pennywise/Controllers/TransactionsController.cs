@@ -13,14 +13,23 @@ namespace Pennywise.Controllers;
 public sealed class TransactionsController : ControllerBase
 {
     private readonly ITransactionRepository _repository;
+    private readonly IAccountRepository _accountRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TransactionsController"/> class.
     /// </summary>
     /// <param name="repository">Transaction repository.</param>
-    public TransactionsController(ITransactionRepository repository)
+    /// <param name="accountRepository">Account repository.</param>
+    /// <param name="categoryRepository">Category repository.</param>
+    public TransactionsController(
+        ITransactionRepository repository,
+        IAccountRepository accountRepository,
+        ICategoryRepository categoryRepository)
     {
         _repository = repository;
+        _accountRepository = accountRepository;
+        _categoryRepository = categoryRepository;
     }
 
     /// <summary>
@@ -66,6 +75,12 @@ public sealed class TransactionsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TransactionResponse>> Create(TransactionCreateRequest request, CancellationToken cancellationToken)
     {
+        var referenceError = await ValidateReferencesAsync(request.AccountId, request.CategoryId, cancellationToken);
+        if (referenceError is not null)
+        {
+            return referenceError;
+        }
+
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
@@ -94,6 +109,12 @@ public sealed class TransactionsController : ControllerBase
         if (transaction is null)
         {
             return NotFound();
+        }
+
+        var referenceError = await ValidateReferencesAsync(request.AccountId, request.CategoryId, cancellationToken);
+        if (referenceError is not null)
+        {
+            return referenceError;
         }
 
         transaction.AccountId = request.AccountId;
@@ -136,5 +157,29 @@ public sealed class TransactionsController : ControllerBase
             Merchant = transaction.Merchant,
             CreatedAt = transaction.CreatedAt
         };
+    }
+
+    private async Task<ActionResult?> ValidateReferencesAsync(Guid accountId, Guid categoryId, CancellationToken cancellationToken)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        var account = await _accountRepository.GetAsync(accountId, cancellationToken);
+        if (account is null)
+        {
+            errors[nameof(TransactionCreateRequest.AccountId)] = ["Referenced account was not found."];
+        }
+
+        var category = await _categoryRepository.GetAsync(categoryId, cancellationToken);
+        if (category is null)
+        {
+            errors[nameof(TransactionCreateRequest.CategoryId)] = ["Referenced category was not found."];
+        }
+
+        if (errors.Count == 0)
+        {
+            return null;
+        }
+
+        return ValidationProblem(new ValidationProblemDetails(errors));
     }
 }

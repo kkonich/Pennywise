@@ -13,7 +13,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container;
     private DbContextOptions<PennywiseDbContext> _options = default!;
-
+    
     public TransactionRepositoryTests()
     {
         const string user = "pennywise";
@@ -53,7 +53,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 12.50m,
             Note = "Lunch",
             Merchant = "Cafe",
@@ -86,7 +86,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 5m,
             Note = "Coffee",
             Merchant = "Cafe",
@@ -97,7 +97,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 11),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 50m,
             Note = "Groceries",
             Merchant = "Market",
@@ -108,7 +108,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 20m,
             Note = "Dinner",
             Merchant = "Bistro",
@@ -137,7 +137,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 12.50m,
             Note = "Lunch",
             Merchant = "Cafe",
@@ -175,7 +175,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 11),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 15m,
             Note = "Groceries",
             Merchant = "Market",
@@ -186,7 +186,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = otherAccount.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 20m,
             Note = "Other",
             Merchant = "Shop",
@@ -197,7 +197,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 5m,
             Note = "Coffee",
             Merchant = "Cafe",
@@ -226,7 +226,7 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = account.Id,
             CategoryId = category.Id,
-            BookedOn = new DateOnly(2026, 2, 10),
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 12.50m,
             Note = "Lunch",
             Merchant = "Cafe",
