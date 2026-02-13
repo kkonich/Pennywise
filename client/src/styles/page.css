@@ -10,7 +10,6 @@
 .transactions-card .ant-card-head {
   border-bottom-color: var(--color-border-soft);
 }
-
 .transactions-card .ant-card-head-title {
   color: var(--color-text-primary);
 }
@@ -34,17 +33,16 @@
   font-weight: 500;
 }
 
-.transactions-table-card .ant-table-thead > tr > th.ant-table-column-has-sorters:hover,
-.transactions-table-card .ant-table-thead > tr > th.ant-table-column-sort {
+/* Keep sortable headers subtle in dark mode (no bright AntD highlight). */
+.transactions-table-card
+  .ant-table-thead
+  > tr
+  > th:is(.ant-table-column-has-sorters:hover, .ant-table-column-sort) {
   background: #8ea5c723;
 }
 
-.transactions-table-card .ant-table-thead > tr > th.ant-table-column-has-sorters:hover::before,
-.transactions-table-card .ant-table-thead > tr > th.ant-table-column-sort::before {
-  display: none;
-}
-
-.transactions-table-card .ant-table-thead > tr > th:not(:last-child)::before {
+/* Remove AntD's default vertical header separators. */
+.transactions-table-card .ant-table-thead > tr > th::before {
   display: none;
 }
 
@@ -75,4 +73,26 @@
 
 .transactions-table-card .transaction-amount-negative {
   color: #d33852;
+}
+
+/* Override AntD loading overlay to avoid light flash on route switch. */
+.transactions-table-card .ant-spin-blur {
+  opacity: 1 !important;
+}
+
+.transactions-table-card .ant-spin-container::after {
+  background: transparent !important;
+}
+
+.transactions-table-card .ant-spin-dot-item {
+  background-color: #8ea5c7 !important;
+}
+
+.transactions-table-card .ant-spin-text {
+  color: #8ea5c7 !important;
+}
+
+/* Style empty-state row so it blends with the card surface. */
+.transactions-table-card .ant-table-tbody > tr.ant-table-placeholder {
+  background: #8ea5c723 !important;
 }

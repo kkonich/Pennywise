@@ -15,6 +15,7 @@ export type TransactionItem = {
 type TransactionsTableProps = {
   items: TransactionItem[]
   title?: string
+  isLoading?: boolean
 }
 
 function formatCurrency(value: number, currencyCode = 'EUR'): string {
@@ -78,15 +79,17 @@ const columns: TableColumnsType<TransactionItem> = [
   },
 ]
 
-export function TransactionsTable({ items, title = 'Letzte Transaktionen' }: TransactionsTableProps) {
+export function TransactionsTable({ items, title = 'Letzte Transaktionen', isLoading = false }: TransactionsTableProps) {
   return (
     <Card className="transactions-card transactions-table-card" title={title} bordered={false}>
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}
         dataSource={items}
+        loading={isLoading}
         pagination={false}
         size="middle"
+        locale={{ emptyText: 'Keine Transaktionen vorhanden.' }}
       />
     </Card>
   )
