@@ -1,0 +1,22 @@
+.app-shell {
+  min-height: 100vh;
+  background-color: var(--color-bg-app);
+}
+
+.dashboard-content {
+  padding: 28px;
+  background-color: var(--color-bg-app);
+}
+
+.dashboard-title.ant-typography {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--color-text-primary);
+}
+
+.dashboard-placeholder {
+  min-height: calc(100vh - 120px);
+  border-radius: 14px;
+  border: 1px dashed var(--color-border-dashed);
+  background: var(--color-surface-faint);
+}

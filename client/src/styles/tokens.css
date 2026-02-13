@@ -1,0 +1,13 @@
+:root {
+  --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  --color-bg-app: #0f1724;
+  --color-text-primary: #f1f5ff;
+  --color-border-soft: rgba(130, 155, 196, 0.2);
+  --color-surface-soft: rgba(255, 255, 255, 0.03);
+  --color-surface-faint: rgba(255, 255, 255, 0.02);
+  --color-border-dashed: rgba(132, 159, 204, 0.35);
+  --color-menu-active-bg: #16315f;
+  --color-menu-hover-bg: #132950;
+  --color-menu-active-text: #f1f5ff;
+}

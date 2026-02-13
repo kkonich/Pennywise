@@ -1,0 +1,68 @@
+.app-sider {
+  border-right: 1px solid var(--color-border-soft);
+}
+
+.sider-inner {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 64px;
+  margin: 17px 12px 0px 12px;
+  padding: 0 12px;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.brand-name {
+  color: var(--color-text-primary);
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.main-menu {
+  background: transparent;
+  border-inline-end: 0;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.sidebar-bottom-menu {
+  margin-top: auto;
+  margin-bottom: 12px;
+}
+
+/* Tighten AntD's default inline menu spacing for a more compact sidebar rhythm. */
+.main-menu.ant-menu-inline .ant-menu-item {
+  margin-inline: 0;
+  width: 100%;
+}
+
+.main-menu.ant-menu-dark .ant-menu-item-selected {
+  background-color: var(--color-menu-active-bg);
+  color: var(--color-menu-active-text);
+}
+
+.main-menu.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover {
+  background-color: var(--color-menu-hover-bg) !important;
+}
+
+
+.main-menu.ant-menu-dark .ant-menu-item-selected .anticon {
+  color: var(--color-menu-active-text);
+}
+
+.main-menu.ant-menu-dark .ant-menu-item:hover {
+  background-color: var(--color-menu-hover-bg);
+}
