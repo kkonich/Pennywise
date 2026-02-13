@@ -1,1 +1,78 @@
-/* Reserved for future route-specific page styles. */
+/* Route-level page styles. */
+
+/* Transactions Page */
+.transactions-card {
+  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.transactions-card .ant-card-head {
+  border-bottom-color: var(--color-border-soft);
+}
+
+.transactions-card .ant-card-head-title {
+  color: var(--color-text-primary);
+}
+
+.transactions-table-card .ant-card-body {
+  padding-top: 10px;
+}
+
+.transactions-table-card .ant-table {
+  background: transparent;
+}
+
+.transactions-table-card .ant-table-thead > tr > th,
+.transactions-table-card .ant-table-tbody > tr > td {
+  background: transparent;
+  border-bottom-color: rgba(140, 168, 214, 0.2);
+}
+
+.transactions-table-card .ant-table-thead > tr > th {
+  color: #8ea5c7;
+  font-weight: 500;
+}
+
+.transactions-table-card .ant-table-thead > tr > th.ant-table-column-has-sorters:hover,
+.transactions-table-card .ant-table-thead > tr > th.ant-table-column-sort {
+  background: #8ea5c723;
+}
+
+.transactions-table-card .ant-table-thead > tr > th.ant-table-column-has-sorters:hover::before,
+.transactions-table-card .ant-table-thead > tr > th.ant-table-column-sort::before {
+  display: none;
+}
+
+.transactions-table-card .ant-table-thead > tr > th:not(:last-child)::before {
+  display: none;
+}
+
+.transactions-table-card .ant-table-tbody > tr > td {
+  color: #afc0d9;
+}
+
+.transactions-table-card .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.transactions-table-card .ant-table-column-sorter {
+  color: rgba(160, 184, 218, 0.42);
+}
+
+.transactions-table-card .ant-table-column-sorter-up.active,
+.transactions-table-card .ant-table-column-sorter-down.active {
+  color: #8ea5c7;
+}
+
+.transactions-table-card .transaction-amount {
+  color: #f4e2d7;
+}
+
+.transactions-table-card .transaction-amount-positive {
+  color: #239e33;
+}
+
+.transactions-table-card .transaction-amount-negative {
+  color: #d33852;
+}

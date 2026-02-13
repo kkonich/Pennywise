@@ -5,6 +5,7 @@ import 'antd/dist/reset.css'
 import './index.css'
 import App from './App.tsx'
 import { DEFAULT_ROUTE } from './navigation/navConfig'
+import { TransactionsPage } from './pages/TransactionsPage'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="dashboard" element={<></>} />
           <Route path="accounts" element={<></>} />
           <Route path="categories" element={<></>} />
+          <Route path="transactions" element={<TransactionsPage />} />
           <Route path="settings" element={<></>} />
           <Route path="*" element={<Navigate to={DEFAULT_ROUTE} replace />} />
         </Route>

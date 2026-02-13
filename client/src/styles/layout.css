@@ -9,14 +9,21 @@
 }
 
 .page-title.ant-typography {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-top: 0;
   margin-bottom: 16px;
   color: var(--color-text-primary);
 }
 
+.page-title-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+}
+
 .page-placeholder {
-  min-height: calc(100vh - 120px);
   border-radius: 14px;
-  border: 1px dashed var(--color-border-dashed);
-  background: var(--color-surface-faint);
+  background: transparent;
 }

@@ -1,4 +1,4 @@
-import { DashboardOutlined, SettingOutlined, TagsOutlined, WalletOutlined } from '@ant-design/icons'
+import { DashboardOutlined, SettingOutlined, SwapOutlined, TagsOutlined, WalletOutlined } from '@ant-design/icons'
 import type { ReactNode } from 'react'
 
 export type NavSection = 'main' | 'bottom'
@@ -28,6 +28,12 @@ export const navItems: NavItem[] = [
     label: 'Categories',
     section: 'main',
     icon: <TagsOutlined />,
+  },
+  {
+    key: '/transactions',
+    label: 'Transactions',
+    section: 'main',
+    icon: <SwapOutlined />,
   },
   {
     key: '/settings',
