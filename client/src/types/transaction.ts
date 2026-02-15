@@ -7,3 +7,11 @@ export type TransactionDto = {
   note: string
   merchant: string | null
 }
+
+export type TransactionPageDto = {
+  items: TransactionDto[]
+  totalCount: number
+  page: number
+  pageSize: number
+  totalPages: number
+}

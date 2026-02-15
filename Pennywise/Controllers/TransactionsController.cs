@@ -33,13 +33,36 @@ public sealed class TransactionsController : ControllerBase
     }
 
     /// <summary>
-    /// Returns all transactions sorted by booked date, newest first.
+    /// Returns transactions in pages sorted by booked date, newest first.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TransactionResponse>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<TransactionPageResponse>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        CancellationToken cancellationToken = default)
     {
-        var transactions = await _repository.GetAllAsync(cancellationToken);
-        var response = transactions.Select(MapToResponse).ToList();
+        if (page < 1)
+        {
+            return BadRequest("Query parameter 'page' must be greater than or equal to 1.");
+        }
+
+        if (pageSize is < 1 or > 100)
+        {
+            return BadRequest("Query parameter 'pageSize' must be between 1 and 100.");
+        }
+
+        var (transactions, totalCount) = await _repository.GetPagedAsync(page, pageSize, cancellationToken);
+        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling((double)totalCount / pageSize);
+
+        var response = new TransactionPageResponse
+        {
+            Items = transactions.Select(MapToResponse).ToList(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages
+        };
+
         return Ok(response);
     }
 

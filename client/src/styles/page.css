@@ -77,11 +77,7 @@
 
 /* Override AntD loading overlay to avoid light flash on route switch. */
 .transactions-table-card .ant-spin-blur {
-  opacity: 1 !important;
-}
-
-.transactions-table-card .ant-spin-container::after {
-  background: transparent !important;
+  opacity: 1;
 }
 
 .transactions-table-card .ant-spin-dot-item {
@@ -95,4 +91,81 @@
 /* Style empty-state row so it blends with the card surface. */
 .transactions-table-card .ant-table-tbody > tr.ant-table-placeholder {
   background: #8ea5c723 !important;
+}
+
+/* Pagination with dark styling below */
+.transactions-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  color: #8ea5c7;
+}
+
+.transactions-pagination .ant-pagination-total-text,
+.transactions-pagination .ant-pagination-item-link,
+.transactions-pagination .ant-pagination-item a {
+  color: #afc0d9 !important;
+}
+
+.transactions-pagination .ant-pagination-item,
+.transactions-pagination .ant-pagination-prev .ant-pagination-item-link,
+.transactions-pagination .ant-pagination-next .ant-pagination-item-link {
+  border-color: var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.transactions-pagination .ant-pagination-item-active {
+  border-color: #8ea5c7;
+  background: #1e3e75;
+}
+
+.transactions-pagination .ant-pagination-item-active a {
+  color: #f1f5ff;
+}
+
+.transactions-pagination .ant-pagination-item:not(.ant-pagination-item-active):hover,
+.transactions-pagination .ant-pagination-prev:hover .ant-pagination-item-link,
+.transactions-pagination .ant-pagination-next:hover .ant-pagination-item-link {
+  border-color: #8ea5c7 !important;
+  color: #f1f5ff !important;
+}
+
+.transactions-pagination .ant-select .ant-select-selector {
+  border-color: var(--color-border-soft) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #f1f5ff !important;
+}
+
+.transactions-pagination .ant-select .ant-select-arrow {
+  color: #8ea5c7 !important;
+}
+
+/* Select dropdown rendered in a portal. */
+.transactions-page-size-dropdown {
+  background: #14253f !important;
+  border: 1px solid var(--color-border-soft);
+}
+
+.transactions-page-size-dropdown .ant-select-item {
+  color: #d7e2f3 !important;
+}
+
+.transactions-page-size-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled),
+.transactions-page-size-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: #1e3e75 !important;
+  color: #f1f5ff !important;
+} 
+
+.ant-pagination-options .ant-select {
+  background: #14253f !important;
+  color: #8ea5c7 !important;
+  border: 1px solid var(--color-border-soft);
+}
+
+.ant-select .ant-select-suffix {
+  color: #8ea5c7 !important;
+}
+ 
+.ant-select .ant-select-content-has-value {
+  color: #8ea5c7 !important;
 }

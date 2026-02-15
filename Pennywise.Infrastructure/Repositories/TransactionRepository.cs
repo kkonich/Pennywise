@@ -20,14 +20,21 @@ public sealed class TransactionRepository : ITransactionRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(transaction => transaction.Id == id, cancellationToken);
     }
-
-    public async Task<IReadOnlyList<Transaction>> GetAllAsync(CancellationToken cancellationToken = default)
+    
+    public async Task<(IReadOnlyList<Transaction> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Transactions
+        var query = _dbContext.Transactions
             .AsNoTracking()
             .OrderByDescending(transaction => transaction.BookedOn)
-            .ThenByDescending(transaction => transaction.CreatedAt)
+            .ThenByDescending(transaction => transaction.CreatedAt);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task<IReadOnlyList<Transaction>> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken = default)

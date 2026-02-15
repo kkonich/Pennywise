@@ -72,8 +72,8 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         Assert.Equal("Cafe", fetched.Merchant);
     }
 
-    [Fact(DisplayName = "GetAllAsync returns persisted transactions")]
-    public async Task GetAllAsync_returns_transactions_sorted_by_booked_on_then_created_at()
+    [Fact(DisplayName = "GetPagedAsync returns transactions sorted by booked_on then created_at")]
+    public async Task GetPagedAsync_returns_transactions_sorted_by_booked_on_then_created_at()
     {
         await using var context = await CreateNewContextAsync();
         var repository = new TransactionRepository(context);
@@ -115,12 +115,47 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
             CreatedAt = DateTimeOffset.UtcNow.AddMinutes(-1)
         });
 
-        var transactions = await repository.GetAllAsync();
+        var (transactions, totalCount) = await repository.GetPagedAsync(page: 1, pageSize: 25);
 
+        Assert.Equal(3, totalCount);
         Assert.Equal(3, transactions.Count);
         Assert.Equal("Groceries", transactions[0].Note);
         Assert.Equal("Dinner", transactions[1].Note);
         Assert.Equal("Coffee", transactions[2].Note);
+    }
+
+    [Fact(DisplayName = "GetPagedAsync returns requested page and total count")]
+    public async Task GetPagedAsync_returns_page_items_and_total_count()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new TransactionRepository(context);
+
+        var account = await CreateAccountAsync(context);
+        var category = await CreateCategoryAsync(context);
+        var bookedOn = new DateOnly(2026, 1, 1);
+        var createdAtBase = new DateTimeOffset(2026, 1, 1, 8, 0, 0, TimeSpan.Zero);
+
+        for (var index = 1; index <= 5; index++)
+        {
+            await repository.AddAsync(new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = account.Id,
+                CategoryId = category.Id,
+                BookedOn = bookedOn,
+                Amount = index,
+                Note = $"Transaction {index}",
+                Merchant = "Store",
+                CreatedAt = createdAtBase.AddMinutes(index)
+            });
+        }
+
+        var (items, totalCount) = await repository.GetPagedAsync(page: 2, pageSize: 2);
+
+        Assert.Equal(5, totalCount);
+        Assert.Equal(2, items.Count);
+        Assert.Equal("Transaction 3", items[0].Note);
+        Assert.Equal("Transaction 2", items[1].Note);
     }
 
     [Fact(DisplayName = "UpdateAsync updates transaction")]

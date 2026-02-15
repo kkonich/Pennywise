@@ -1,4 +1,4 @@
-import { Card, Table, Typography } from 'antd'
+import { Card, Pagination, Table, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
 
 export type TransactionItem = {
@@ -16,6 +16,10 @@ type TransactionsTableProps = {
   items: TransactionItem[]
   title?: string
   isLoading?: boolean
+  page: number
+  pageSize: number
+  totalCount: number
+  onPageChange: (page: number, pageSize: number) => void
 }
 
 function formatCurrency(value: number, currencyCode = 'EUR'): string {
@@ -79,9 +83,17 @@ const columns: TableColumnsType<TransactionItem> = [
   },
 ]
 
-export function TransactionsTable({ items, title = 'Letzte Transaktionen', isLoading = false }: TransactionsTableProps) {
+export function TransactionsTable({
+  items,
+  title = 'Letzte Transaktionen',
+  isLoading = false,
+  page,
+  pageSize,
+  totalCount,
+  onPageChange,
+}: TransactionsTableProps) {
   return (
-    <Card className="transactions-card transactions-table-card" title={title} bordered={false}>
+    <Card className="transactions-card transactions-table-card" title={title} variant="borderless">
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}
@@ -91,6 +103,17 @@ export function TransactionsTable({ items, title = 'Letzte Transaktionen', isLoa
         size="middle"
         locale={{ emptyText: 'Keine Transaktionen vorhanden.' }}
       />
+      <div className="transactions-pagination">
+        <Pagination
+          current={page}
+          pageSize={pageSize}
+          total={totalCount}
+          onChange={onPageChange}
+          showSizeChanger={{ classNames: { popup: { root: 'transactions-page-size-dropdown' } } }}
+          pageSizeOptions={['25', '50', '100']}
+          showTotal={(total, range) => `${range[0]}-${range[1]} von ${total}`}
+        />
+      </div>
     </Card>
   )
 }
