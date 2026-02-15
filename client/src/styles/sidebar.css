@@ -58,7 +58,6 @@
   background-color: var(--color-menu-hover-bg) !important;
 }
 
-
 .main-menu.ant-menu-dark .ant-menu-item-selected .anticon {
   color: var(--color-menu-active-text);
 }

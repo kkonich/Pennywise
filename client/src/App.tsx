@@ -1,21 +1,8 @@
-import { Layout, Menu, Typography } from 'antd'
-import type { MenuProps } from 'antd'
+import { Layout, Typography } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import logo from './assets/logo.svg'
+import { AppSidebar } from './components/AppSidebar'
 import { DEFAULT_ROUTE, navItems } from './navigation/navConfig'
 import './App.css'
-
-const mainMenuItems: MenuProps['items'] = navItems
-  .filter((item) => item.section === 'main')
-  .map(({ key, label, icon }) => ({ key, label, icon }))
-
-const bottomMenuItems: MenuProps['items'] = navItems
-  .filter((item) => item.section === 'bottom')
-  .map(({ key, label, icon }) => ({ key, label, icon }))
-
-const bottomMenuKeys = new Set(
-  navItems.filter((item) => item.section === 'bottom').map((item) => item.key),
-)
 
 function App() {
   const location = useLocation()
@@ -26,32 +13,7 @@ function App() {
 
   return (
     <Layout className="app-shell app-dark">
-      <Layout.Sider width={260} className="app-sider" theme="dark">
-        <div className="sider-inner">
-          <div className="brand">
-            <img className="brand-logo" src={logo} alt="Pennywise Logo" />
-            <Typography.Text className="brand-name">Pennywise</Typography.Text>
-          </div>
-
-          <Menu
-            mode="inline"
-            theme="dark"
-            className="main-menu"
-            items={mainMenuItems}
-            selectedKeys={[selectedMenuKey]}
-            onClick={({ key }) => void navigate(key as string)}
-          />
-
-          <Menu
-            mode="inline"
-            theme="dark"
-            className="main-menu sidebar-bottom-menu"
-            items={bottomMenuItems}
-            selectedKeys={bottomMenuKeys.has(selectedMenuKey) ? [selectedMenuKey] : []}
-            onClick={({ key }) => void navigate(key as string)}
-          />
-        </div>
-      </Layout.Sider>
+      <AppSidebar selectedMenuKey={selectedMenuKey} onNavigate={(key) => void navigate(key)} />
 
       <Layout>
         <Layout.Content className="page-content">

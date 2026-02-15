@@ -28,6 +28,9 @@
 
   --color-table-border: rgba(140, 168, 214, 0.2);
   --color-table-row-hover: rgba(255, 255, 255, 0.015);
+  --color-transaction-amount: #f4e2d7;
+  --color-transaction-amount-positive: #239e33;
+  --color-transaction-amount-negative: #d33852;
 
   --radius-control: 10px;
   --radius-card: 12px;

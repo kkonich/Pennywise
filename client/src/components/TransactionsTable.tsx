@@ -1,5 +1,7 @@
-import { Button, Card, Input, Pagination, Select, Space, Table, Typography } from 'antd'
+import { Button, Card, DatePicker, Input, InputNumber, Pagination, Select, Space, Table, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
+import dayjs from 'dayjs'
+import { useMemo, useState } from 'react'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
@@ -29,6 +31,22 @@ type TransactionsTableProps = {
   onApplyFilters: () => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
+}
+
+type OpenPopupState = {
+  account: boolean
+  category: boolean
+  bookedFrom: boolean
+  bookedTo: boolean
+}
+
+function createClosedPopupState(): OpenPopupState {
+  return {
+    account: false,
+    category: false,
+    bookedFrom: false,
+    bookedTo: false,
+  }
 }
 
 function formatCurrency(value: number, currencyCode = 'EUR'): string {
@@ -107,65 +125,119 @@ export function TransactionsTable({
   onResetFilters,
   onPageChange,
 }: TransactionsTableProps) {
+  const [openPopup, setOpenPopup] = useState(createClosedPopupState)
+
+  const hasOpenPopup = useMemo(() => Object.values(openPopup).some(Boolean), [openPopup])
+
+  const cardClassName = hasOpenPopup ? 'transactions-table transactions-table-popup-open' : 'transactions-table'
+
+  function closeAllPopups() {
+    setOpenPopup(createClosedPopupState())
+  }
+
+  function setPopupOpen(key: keyof OpenPopupState, isOpen: boolean) {
+    setOpenPopup((prev) => ({ ...prev, [key]: isOpen }))
+  }
+
+  function onFiltersKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement
+
+    if (event.key === 'Escape' && hasOpenPopup) {
+      event.preventDefault()
+      event.stopPropagation()
+      closeAllPopups()
+      target.blur()
+      return
+    }
+
+    if (event.key === 'Enter' && !hasOpenPopup && !target.closest('button')) {
+      event.preventDefault()
+      onApplyFilters()
+    }
+  }
+
   return (
-    <Card className="transactions-card transactions-table-card" title={title} variant="borderless">
-      <div className="transactions-filters">
+    <Card className={cardClassName} title={title} variant="borderless">
+      <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input
             allowClear
-            className="transactions-filter-search"
             placeholder="Beschreibung"
             value={filters.searchTerm}
             onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
           />
           <Select
             allowClear
-            className="transactions-filter-select"
             placeholder="Konto"
             value={filters.accountId}
             options={accounts.map((account) => ({ value: account.id, label: account.name }))}
             onChange={(value) => onFiltersChange({ ...filters, accountId: value })}
+            open={openPopup.account}
+            onOpenChange={(isOpen) => setPopupOpen('account', isOpen)}
           />
           <Select
             allowClear
-            className="transactions-filter-select"
             placeholder="Kategorie"
             value={filters.categoryId}
             options={categories.map((category) => ({ value: category.id, label: category.name }))}
             onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
+            open={openPopup.category}
+            onOpenChange={(isOpen) => setPopupOpen('category', isOpen)}
           />
-          <Input
-            type="date"
-            className="transactions-filter-date"
-            value={filters.bookedFrom}
-            onChange={(event) => onFiltersChange({ ...filters, bookedFrom: event.target.value || undefined })}
+          <DatePicker
+            placeholder="Buchung von"
+            value={filters.bookedFrom ? dayjs(filters.bookedFrom) : null}
+            format="DD.MM.YYYY"
+            onChange={(date) =>
+              onFiltersChange({
+                ...filters,
+                bookedFrom: date ? date.format('YYYY-MM-DD') : undefined,
+              })}
+            open={openPopup.bookedFrom}
+            onOpenChange={(isOpen) => setPopupOpen('bookedFrom', isOpen)}
           />
-          <Input
-            type="date"
-            className="transactions-filter-date"
-            value={filters.bookedTo}
-            onChange={(event) => onFiltersChange({ ...filters, bookedTo: event.target.value || undefined })}
+          <DatePicker
+            placeholder="Buchung bis"
+            value={filters.bookedTo ? dayjs(filters.bookedTo) : null}
+            format="DD.MM.YYYY"
+            onChange={(date) =>
+              onFiltersChange({
+                ...filters,
+                bookedTo: date ? date.format('YYYY-MM-DD') : undefined,
+              })}
+            open={openPopup.bookedTo}
+            onOpenChange={(isOpen) => setPopupOpen('bookedTo', isOpen)}
           />
-          <Input
-            type="number"
-            step="0.01"
-            className="transactions-filter-amount"
+          <InputNumber<string>
+            stringMode
+            step="1"
             placeholder="Betrag min"
-            value={filters.minAmount}
-            onChange={(event) => onFiltersChange({ ...filters, minAmount: event.target.value || undefined })}
+            value={filters.minAmount ?? null}
+            onChange={(value) => onFiltersChange({ ...filters, minAmount: value ?? undefined })}
           />
-          <Input
-            type="number"
-            step="0.01"
-            className="transactions-filter-amount"
+          <InputNumber<string>
+            stringMode
+            step="1"
             placeholder="Betrag max"
-            value={filters.maxAmount}
-            onChange={(event) => onFiltersChange({ ...filters, maxAmount: event.target.value || undefined })}
+            value={filters.maxAmount ?? null}
+            onChange={(value) => onFiltersChange({ ...filters, maxAmount: value ?? undefined })}
           />
-          <Button onClick={onApplyFilters}>
+          <Button
+            onClick={() => {
+              closeAllPopups()
+              onApplyFilters()
+            }}
+          >
             Anwenden
           </Button>
-          <Button onClick={onResetFilters}>Zuruecksetzen</Button>
+          <Button
+            onClick={() => {
+              closeAllPopups()
+              onResetFilters()
+            }}
+          >
+            Zuruecksetzen
+          </Button>
         </Space>
       </div>
       <Table<TransactionItem>
@@ -177,17 +249,15 @@ export function TransactionsTable({
         size="middle"
         locale={{ emptyText: 'Keine Transaktionen vorhanden.' }}
       />
-      <div className="transactions-pagination">
-        <Pagination
-          current={page}
-          pageSize={pageSize}
-          total={totalCount}
-          onChange={onPageChange}
-          showSizeChanger={{ classNames: { popup: { root: 'transactions-page-size-dropdown' } } }}
-          pageSizeOptions={['25', '50', '100']}
-          showTotal={(total, range) => `${range[0]}-${range[1]} von ${total}`}
-        />
-      </div>
+      <Pagination
+        current={page}
+        pageSize={pageSize}
+        total={totalCount}
+        onChange={onPageChange}
+        showSizeChanger
+        pageSizeOptions={['25', '50', '100']}
+        showTotal={(total, range) => `${range[0]}-${range[1]} von ${total}`}
+      />
     </Card>
   )
 }
