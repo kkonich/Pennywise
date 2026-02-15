@@ -15,41 +15,8 @@
   width: 170px;
 }
 
-/* Keep table surface transparent in dark layout. */
-.transactions-table .ant-table-wrapper,
-.transactions-table .ant-table,
-.transactions-table .ant-table-container,
-.transactions-table .ant-table-content,
-.transactions-table .ant-table-thead,
-.transactions-table .ant-table-tbody {
-  background: transparent !important;
-}
-
-.transactions-table .ant-table-thead > tr > th,
 .transactions-table .ant-table-tbody > tr > td {
-  background: transparent !important;
-  border-bottom-color: var(--color-table-border) !important;
-}
-
-.transactions-table .ant-table-thead > tr > th {
-  color: var(--a-muted);
-  font-weight: 500;
-}
-
-.transactions-table .ant-table-thead > tr > th:is(.ant-table-column-has-sorters:hover, .ant-table-column-sort) {
-  background: var(--a-soft-hl) !important;
-}
-
-.transactions-table .ant-table-thead > tr > th::before {
-  display: none;
-}
-
-.transactions-table .ant-table-tbody > tr > td {
-  color: var(--a-text-2);
-}
-
-.transactions-table .ant-table-tbody > tr.ant-table-row:hover > td {
-  background: var(--a-hover) !important;
+  color: var(--color-text-secondary);
 }
 
 .transactions-table .transaction-amount {

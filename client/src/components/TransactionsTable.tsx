@@ -236,7 +236,7 @@ export function TransactionsTable({
               onResetFilters()
             }}
           >
-            Zuruecksetzen
+            Zurücksetzen
           </Button>
         </Space>
       </div>

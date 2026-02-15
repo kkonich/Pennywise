@@ -8,6 +8,7 @@ import App from './App.tsx'
 import { DEFAULT_ROUTE } from './navigation/navConfig'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { antdDarkTheme } from './theme/antdDarkTheme'
+import { applyDesignTokens } from './theme/designTokensDark.ts'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +18,8 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+applyDesignTokens()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
