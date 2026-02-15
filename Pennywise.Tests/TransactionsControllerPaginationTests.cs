@@ -48,7 +48,7 @@ public sealed class TransactionsControllerPaginationTests
         };
 
         transactionRepository
-            .Setup(r => r.GetPagedAsync(2, 2, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedAsync(2, 2, It.IsAny<TransactionPageFilter>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((transactions, 5));
 
         var controller = new TransactionsController(
@@ -83,7 +83,7 @@ public sealed class TransactionsControllerPaginationTests
         var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
         Assert.Equal("Query parameter 'page' must be greater than or equal to 1.", badRequest.Value);
         transactionRepository.Verify(
-            r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<TransactionPageFilter?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -101,7 +101,7 @@ public sealed class TransactionsControllerPaginationTests
         var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
         Assert.Equal("Query parameter 'pageSize' must be between 1 and 100.", badRequest.Value);
         transactionRepository.Verify(
-            r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<TransactionPageFilter?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -110,7 +110,7 @@ public sealed class TransactionsControllerPaginationTests
     {
         var transactionRepository = new Mock<ITransactionRepository>();
         transactionRepository
-            .Setup(r => r.GetPagedAsync(1, 25, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedAsync(1, 25, It.IsAny<TransactionPageFilter>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((new List<Transaction>(), 0));
 
         var controller = new TransactionsController(
@@ -125,5 +125,28 @@ public sealed class TransactionsControllerPaginationTests
         Assert.Equal(0, response.TotalCount);
         Assert.Equal(0, response.TotalPages);
         Assert.Empty(response.Items);
+    }
+
+    [Fact(DisplayName = "GetAll returns 400 when bookedFrom is greater than bookedTo")]
+    public async Task GetAll_invalid_booked_range_returns_bad_request()
+    {
+        var transactionRepository = new Mock<ITransactionRepository>();
+        var controller = new TransactionsController(
+            transactionRepository.Object,
+            Mock.Of<IAccountRepository>(),
+            Mock.Of<ICategoryRepository>());
+
+        var result = await controller.GetAll(
+            page: 1,
+            pageSize: 25,
+            bookedFrom: new DateOnly(2026, 2, 2),
+            bookedTo: new DateOnly(2026, 2, 1),
+            cancellationToken: CancellationToken.None);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Query parameter 'bookedFrom' must be less than or equal to 'bookedTo'.", badRequest.Value);
+        transactionRepository.Verify(
+            r => r.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<TransactionPageFilter?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

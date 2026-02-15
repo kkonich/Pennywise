@@ -109,6 +109,8 @@ namespace Pennywise.Infrastructure.Migrations
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("BookedOn", "CreatedAt");
+
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Transaction");

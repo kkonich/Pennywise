@@ -1,3 +1,4 @@
 @import './styles/layout.css';
 @import './styles/sidebar.css';
-@import './styles/page.css';
+@import './styles/antd-dark.css';
+@import './styles/transactions.css';

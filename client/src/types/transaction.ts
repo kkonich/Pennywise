@@ -15,3 +15,13 @@ export type TransactionPageDto = {
   pageSize: number
   totalPages: number
 }
+
+export type TransactionFilters = {
+  accountId?: string
+  categoryId?: string
+  bookedFrom?: string
+  bookedTo?: string
+  minAmount?: number
+  maxAmount?: number
+  searchTerm?: string
+}

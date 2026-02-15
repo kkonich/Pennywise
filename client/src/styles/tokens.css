@@ -10,4 +10,25 @@
   --color-menu-active-bg: #16315f;
   --color-menu-hover-bg: #132950;
   --color-menu-active-text: #f1f5ff;
+
+  /* UI Tokens */
+  --color-text-secondary: rgba(215, 226, 243, 0.85);
+  --color-text-muted: rgba(142, 165, 199, 0.85);     
+  --color-text-disabled: rgba(142, 165, 199, 0.45);
+  
+  --color-control-bg: var(--color-surface-faint);  
+  --color-control-bg-hover: rgba(255, 255, 255, 0.035);
+  --color-control-border: var(--color-border-soft);
+  --color-control-border-hover: rgba(142, 165, 199, 0.55);
+
+  --color-focus-ring: rgba(142, 165, 199, 0.35);
+
+  --color-selected-bg: var(--color-menu-active-bg);  
+  --color-selected-text: var(--color-text-primary);
+
+  --color-table-border: rgba(140, 168, 214, 0.2);
+  --color-table-row-hover: rgba(255, 255, 255, 0.015);
+
+  --radius-control: 10px;
+  --radius-card: 12px;
 }

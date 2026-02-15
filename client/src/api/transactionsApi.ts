@@ -1,9 +1,10 @@
 import { getJson } from './http'
-import type { TransactionDto, TransactionPageDto } from '../types/transaction'
+import type { TransactionDto, TransactionFilters, TransactionPageDto } from '../types/transaction'
 
 type FetchTransactionsPageParams = {
   page: number
   pageSize: number
+  filters?: TransactionFilters
   signal?: AbortSignal
 }
 
@@ -12,6 +13,34 @@ export function fetchTransactionsPage(params: FetchTransactionsPageParams): Prom
     page: params.page.toString(),
     pageSize: params.pageSize.toString(),
   })
+
+  if (params.filters?.accountId) {
+    query.set('accountId', params.filters.accountId)
+  }
+
+  if (params.filters?.categoryId) {
+    query.set('categoryId', params.filters.categoryId)
+  }
+
+  if (params.filters?.bookedFrom) {
+    query.set('bookedFrom', params.filters.bookedFrom)
+  }
+
+  if (params.filters?.bookedTo) {
+    query.set('bookedTo', params.filters.bookedTo)
+  }
+
+  if (typeof params.filters?.minAmount === 'number') {
+    query.set('minAmount', params.filters.minAmount.toString())
+  }
+
+  if (typeof params.filters?.maxAmount === 'number') {
+    query.set('maxAmount', params.filters.maxAmount.toString())
+  }
+
+  if (params.filters?.searchTerm) {
+    query.set('searchTerm', params.filters.searchTerm)
+  }
 
   return getJson<TransactionPageDto | TransactionDto[]>(`/api/transactions?${query.toString()}`, {
     signal: params.signal,

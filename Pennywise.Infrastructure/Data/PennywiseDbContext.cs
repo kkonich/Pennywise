@@ -34,6 +34,7 @@ public sealed class PennywiseDbContext : DbContext
         {
             entity.HasKey(transaction => transaction.Id);
             entity.ToTable("Transaction");
+            entity.HasIndex(transaction => new { transaction.BookedOn, transaction.CreatedAt });
         });
     }
 }

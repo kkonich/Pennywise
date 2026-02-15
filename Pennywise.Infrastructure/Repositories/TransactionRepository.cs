@@ -21,10 +21,55 @@ public sealed class TransactionRepository : ITransactionRepository
             .FirstOrDefaultAsync(transaction => transaction.Id == id, cancellationToken);
     }
     
-    public async Task<(IReadOnlyList<Transaction> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<Transaction> Items, int TotalCount)> GetPagedAsync(
+        int page,
+        int pageSize,
+        TransactionPageFilter? filter = null,
+        CancellationToken cancellationToken = default)
     {
         var query = _dbContext.Transactions
             .AsNoTracking()
+            .AsQueryable();
+
+        if (filter?.AccountId is not null)
+        {
+            query = query.Where(transaction => transaction.AccountId == filter.AccountId);
+        }
+
+        if (filter?.CategoryId is not null)
+        {
+            query = query.Where(transaction => transaction.CategoryId == filter.CategoryId);
+        }
+
+        if (filter?.BookedFrom is not null)
+        {
+            query = query.Where(transaction => transaction.BookedOn >= filter.BookedFrom);
+        }
+
+        if (filter?.BookedTo is not null)
+        {
+            query = query.Where(transaction => transaction.BookedOn <= filter.BookedTo);
+        }
+
+        if (filter?.MinAmount is not null)
+        {
+            query = query.Where(transaction => transaction.Amount >= filter.MinAmount);
+        }
+
+        if (filter?.MaxAmount is not null)
+        {
+            query = query.Where(transaction => transaction.Amount <= filter.MaxAmount);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter?.SearchTerm))
+        {
+            var searchPattern = $"%{filter.SearchTerm.Trim()}%";
+            query = query.Where(transaction =>
+                EF.Functions.ILike(transaction.Note, searchPattern) ||
+                (transaction.Merchant != null && EF.Functions.ILike(transaction.Merchant, searchPattern)));
+        }
+
+        query = query
             .OrderByDescending(transaction => transaction.BookedOn)
             .ThenByDescending(transaction => transaction.CreatedAt);
 

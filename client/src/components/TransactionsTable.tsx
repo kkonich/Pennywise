@@ -1,5 +1,8 @@
-import { Card, Pagination, Table, Typography } from 'antd'
+import { Button, Card, Input, Pagination, Select, Space, Table, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
+import type { AccountDto } from '../types/account'
+import type { CategoryDto } from '../types/category'
+import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 
 export type TransactionItem = {
   id: string
@@ -19,6 +22,12 @@ type TransactionsTableProps = {
   page: number
   pageSize: number
   totalCount: number
+  accounts: AccountDto[]
+  categories: CategoryDto[]
+  filters: TransactionFilterDraft
+  onFiltersChange: (next: TransactionFilterDraft) => void
+  onApplyFilters: () => void
+  onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
 }
 
@@ -90,10 +99,75 @@ export function TransactionsTable({
   page,
   pageSize,
   totalCount,
+  accounts,
+  categories,
+  filters,
+  onFiltersChange,
+  onApplyFilters,
+  onResetFilters,
   onPageChange,
 }: TransactionsTableProps) {
   return (
     <Card className="transactions-card transactions-table-card" title={title} variant="borderless">
+      <div className="transactions-filters">
+        <Space wrap size={[8, 8]}>
+          <Input
+            allowClear
+            className="transactions-filter-search"
+            placeholder="Beschreibung"
+            value={filters.searchTerm}
+            onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
+          />
+          <Select
+            allowClear
+            className="transactions-filter-select"
+            placeholder="Konto"
+            value={filters.accountId}
+            options={accounts.map((account) => ({ value: account.id, label: account.name }))}
+            onChange={(value) => onFiltersChange({ ...filters, accountId: value })}
+          />
+          <Select
+            allowClear
+            className="transactions-filter-select"
+            placeholder="Kategorie"
+            value={filters.categoryId}
+            options={categories.map((category) => ({ value: category.id, label: category.name }))}
+            onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
+          />
+          <Input
+            type="date"
+            className="transactions-filter-date"
+            value={filters.bookedFrom}
+            onChange={(event) => onFiltersChange({ ...filters, bookedFrom: event.target.value || undefined })}
+          />
+          <Input
+            type="date"
+            className="transactions-filter-date"
+            value={filters.bookedTo}
+            onChange={(event) => onFiltersChange({ ...filters, bookedTo: event.target.value || undefined })}
+          />
+          <Input
+            type="number"
+            step="0.01"
+            className="transactions-filter-amount"
+            placeholder="Betrag min"
+            value={filters.minAmount}
+            onChange={(event) => onFiltersChange({ ...filters, minAmount: event.target.value || undefined })}
+          />
+          <Input
+            type="number"
+            step="0.01"
+            className="transactions-filter-amount"
+            placeholder="Betrag max"
+            value={filters.maxAmount}
+            onChange={(event) => onFiltersChange({ ...filters, maxAmount: event.target.value || undefined })}
+          />
+          <Button onClick={onApplyFilters}>
+            Anwenden
+          </Button>
+          <Button onClick={onResetFilters}>Zuruecksetzen</Button>
+        </Space>
+      </div>
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}

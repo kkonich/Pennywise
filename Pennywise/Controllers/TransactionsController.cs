@@ -39,6 +39,13 @@ public sealed class TransactionsController : ControllerBase
     public async Task<ActionResult<TransactionPageResponse>> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
+        [FromQuery] Guid? accountId = null,
+        [FromQuery] Guid? categoryId = null,
+        [FromQuery] DateOnly? bookedFrom = null,
+        [FromQuery] DateOnly? bookedTo = null,
+        [FromQuery] decimal? minAmount = null,
+        [FromQuery] decimal? maxAmount = null,
+        [FromQuery] string? searchTerm = null,
         CancellationToken cancellationToken = default)
     {
         if (page < 1)
@@ -51,7 +58,28 @@ public sealed class TransactionsController : ControllerBase
             return BadRequest("Query parameter 'pageSize' must be between 1 and 100.");
         }
 
-        var (transactions, totalCount) = await _repository.GetPagedAsync(page, pageSize, cancellationToken);
+        if (bookedFrom is not null && bookedTo is not null && bookedFrom > bookedTo)
+        {
+            return BadRequest("Query parameter 'bookedFrom' must be less than or equal to 'bookedTo'.");
+        }
+
+        if (minAmount is not null && maxAmount is not null && minAmount > maxAmount)
+        {
+            return BadRequest("Query parameter 'minAmount' must be less than or equal to 'maxAmount'.");
+        }
+
+        var filter = new TransactionPageFilter
+        {
+            AccountId = accountId,
+            CategoryId = categoryId,
+            BookedFrom = bookedFrom,
+            BookedTo = bookedTo,
+            MinAmount = minAmount,
+            MaxAmount = maxAmount,
+            SearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim()
+        };
+
+        var (transactions, totalCount) = await _repository.GetPagedAsync(page, pageSize, filter, cancellationToken);
         var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling((double)totalCount / pageSize);
 
         var response = new TransactionPageResponse

@@ -25,7 +25,7 @@ function App() {
   const activePageTitle = navItems.find((item) => item.key === selectedMenuKey)?.label ?? 'Page'
 
   return (
-    <Layout className="app-shell">
+    <Layout className="app-shell app-dark">
       <Layout.Sider width={260} className="app-sider" theme="dark">
         <div className="sider-inner">
           <div className="brand">

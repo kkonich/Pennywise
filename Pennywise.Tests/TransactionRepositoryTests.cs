@@ -277,6 +277,75 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         Assert.Null(fetched);
     }
 
+    [Fact(DisplayName = "GetPagedAsync applies filters")]
+    public async Task GetPagedAsync_applies_filters()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new TransactionRepository(context);
+
+        var accountA = await CreateAccountAsync(context);
+        var accountB = await CreateAccountAsync(context);
+        var categoryA = await CreateCategoryAsync(context);
+        var categoryB = await CreateCategoryAsync(context);
+
+        await repository.AddAsync(new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountA.Id,
+            CategoryId = categoryA.Id,
+            BookedOn = new DateOnly(2026, 2, 10),
+            Amount = 49.99m,
+            Note = "Supermarket",
+            Merchant = "Amazon",
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await repository.AddAsync(new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountA.Id,
+            CategoryId = categoryA.Id,
+            BookedOn = new DateOnly(2026, 1, 10),
+            Amount = 10m,
+            Note = "Coffee",
+            Merchant = "Cafe",
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await repository.AddAsync(new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountB.Id,
+            CategoryId = categoryB.Id,
+            BookedOn = new DateOnly(2026, 2, 11),
+            Amount = 50m,
+            Note = "Supermarket",
+            Merchant = "Amazon",
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        var (items, totalCount) = await repository.GetPagedAsync(
+            page: 1,
+            pageSize: 25,
+            filter: new Pennywise.Application.Interfaces.TransactionPageFilter
+            {
+                AccountId = accountA.Id,
+                CategoryId = categoryA.Id,
+                BookedFrom = new DateOnly(2026, 2, 1),
+                BookedTo = new DateOnly(2026, 2, 28),
+                MinAmount = 40m,
+                MaxAmount = 60m,
+                SearchTerm = "amazon"
+            });
+
+        Assert.Equal(1, totalCount);
+        Assert.Single(items);
+        Assert.Equal(accountA.Id, items[0].AccountId);
+        Assert.Equal(categoryA.Id, items[0].CategoryId);
+        Assert.Equal(49.99m, items[0].Amount);
+        Assert.Equal("Supermarket", items[0].Note);
+    }
+
     private async Task<Account> CreateAccountAsync(PennywiseDbContext context)
     {
         var account = new Account

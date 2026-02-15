@@ -1,0 +1,114 @@
+/* Transactions page styles (scoped) */
+.transactions-card {
+  border-radius: 12px;
+}
+
+.transactions-filters {
+  margin-bottom: 14px;
+}
+
+.transactions-filter-search {
+  width: 260px;
+}
+
+.transactions-filter-select {
+  width: 170px;
+}
+
+.transactions-filter-date,
+.transactions-filter-amount {
+  width: 140px;
+}
+
+.transactions-table-card .ant-card-body {
+  padding-top: 10px;
+}
+
+/* Keep table surface transparent in dark layout. */
+.transactions-table-card .ant-table-wrapper,
+.transactions-table-card .ant-table,
+.transactions-table-card .ant-table-container,
+.transactions-table-card .ant-table-content,
+.transactions-table-card .ant-table-thead,
+.transactions-table-card .ant-table-tbody {
+  background: transparent !important;
+}
+
+.transactions-table-card .ant-table-thead > tr > th,
+.transactions-table-card .ant-table-tbody > tr > td {
+  background: transparent !important;
+  border-bottom-color: rgba(140, 168, 214, 0.2) !important;
+}
+
+.transactions-table-card .ant-table-thead > tr > th {
+  color: var(--a-muted);
+  font-weight: 500;
+}
+
+.transactions-table-card .ant-table-thead > tr > th:is(.ant-table-column-has-sorters:hover, .ant-table-column-sort) {
+  background: var(--a-soft-hl) !important;
+}
+
+.transactions-table-card .ant-table-thead > tr > th::before {
+  display: none;
+}
+
+.transactions-table-card .ant-table-tbody > tr > td {
+  color: var(--a-text-2);
+}
+
+.transactions-table-card .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: var(--a-hover) !important;
+}
+
+.transactions-table-card .transaction-amount {
+  color: #f4e2d7;
+}
+
+.transactions-table-card .transaction-amount-positive {
+  color: #239e33;
+}
+
+.transactions-table-card .transaction-amount-negative {
+  color: #d33852;
+}
+
+/* Pagination */
+.transactions-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  color: var(--a-muted);
+}
+
+.transactions-pagination :is(.ant-pagination-total-text, .ant-pagination-item a, .ant-pagination-item-link) {
+  color: var(--a-text-2) !important;
+}
+
+.transactions-pagination :is(
+  .ant-pagination-item,
+  .ant-pagination-prev .ant-pagination-item-link,
+  .ant-pagination-next .ant-pagination-item-link
+) {
+  background: var(--a-surface);
+  border-color: var(--a-border);
+}
+
+.transactions-pagination .ant-pagination-item-active {
+  background: var(--a-active-bg);
+  border-color: var(--a-muted);
+}
+
+.transactions-pagination .ant-pagination-item-active a {
+  color: var(--a-active-fg) !important;
+}
+
+.transactions-pagination .ant-select .ant-select-selector {
+  background: var(--a-surface) !important;
+  border-color: var(--a-border) !important;
+  color: var(--a-text) !important;
+}
+
+.transactions-pagination :is(.ant-select-arrow, .ant-select-selection-item) {
+  color: var(--a-text-2) !important;
+}
