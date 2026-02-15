@@ -2,9 +2,10 @@ import { Button, Card, DatePicker, Input, InputNumber, Pagination, Select, Space
 import type { TableColumnsType } from 'antd'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 
 export type TransactionItem = {
   id: string
@@ -49,70 +50,13 @@ function createClosedPopupState(): OpenPopupState {
   }
 }
 
-function formatCurrency(value: number, currencyCode = 'EUR'): string {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: currencyCode }).format(value)
+function formatCurrency(value: number, locale: string, currencyCode = 'EUR'): string {
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(value)
 }
-
-const columns: TableColumnsType<TransactionItem> = [
-  {
-    title: 'Beschreibung',
-    dataIndex: 'note',
-    key: 'note',
-    sorter: (a, b) => a.note.localeCompare(b.note, 'de-DE'),
-  },
-  {
-    title: 'Konto',
-    dataIndex: 'account',
-    key: 'account',
-    sorter: (a, b) => a.account.localeCompare(b.account, 'de-DE'),
-  },
-  {
-    title: 'Kategorie',
-    dataIndex: 'category',
-    key: 'category',
-    sorter: (a, b) => a.category.localeCompare(b.category, 'de-DE'),
-  },
-  {
-    title: 'Buchungsdatum',
-    dataIndex: 'bookedOn',
-    key: 'bookedOn',
-    sorter: (a, b) => new Date(a.bookedOn).getTime() - new Date(b.bookedOn).getTime(),
-    render: (value: string) => new Date(value).toLocaleDateString('de-DE'),
-  },
-  {
-    title: 'Betrag',
-    dataIndex: 'quantity',
-    key: 'quantity',
-    align: 'right',
-    sorter: (a, b) => a.quantity - b.quantity,
-    render: (value: number, record: TransactionItem) => {
-      const absValue = Math.abs(value)
-      const prefix = value > 0 ? '+' : value < 0 ? '-' : ''
-      const amountClassName =
-        value > 0
-          ? 'transaction-amount transaction-amount-positive'
-          : value < 0
-            ? 'transaction-amount transaction-amount-negative'
-            : 'transaction-amount'
-      return (
-        <Typography.Text strong className={amountClassName}>
-          {prefix}
-          {formatCurrency(absValue, record.currencyCode ?? 'EUR')}
-        </Typography.Text>
-      )
-    },
-  },
-  {
-    title: 'Transaktionspartner',
-    dataIndex: 'merchant',
-    key: 'merchant',
-    sorter: (a, b) => a.merchant.localeCompare(b.merchant, 'de-DE'),
-  },
-]
 
 export function TransactionsTable({
   items,
-  title = 'Letzte Transaktionen',
+  title,
   isLoading = false,
   page,
   pageSize,
@@ -125,11 +69,74 @@ export function TransactionsTable({
   onResetFilters,
   onPageChange,
 }: TransactionsTableProps) {
+  const { t, i18n } = useTranslation()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
+  const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
+  const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
   const hasOpenPopup = useMemo(() => Object.values(openPopup).some(Boolean), [openPopup])
+  const cardTitle = title ?? t('transactions.titleLatest')
 
   const cardClassName = hasOpenPopup ? 'transactions-table transactions-table-popup-open' : 'transactions-table'
+  const columns: TableColumnsType<TransactionItem> = useMemo(
+    () => [
+      {
+        title: t('transactions.columns.note'),
+        dataIndex: 'note',
+        key: 'note',
+        sorter: (a, b) => a.note.localeCompare(b.note, locale),
+      },
+      {
+        title: t('transactions.columns.account'),
+        dataIndex: 'account',
+        key: 'account',
+        sorter: (a, b) => a.account.localeCompare(b.account, locale),
+      },
+      {
+        title: t('transactions.columns.category'),
+        dataIndex: 'category',
+        key: 'category',
+        sorter: (a, b) => a.category.localeCompare(b.category, locale),
+      },
+      {
+        title: t('transactions.columns.bookedOn'),
+        dataIndex: 'bookedOn',
+        key: 'bookedOn',
+        sorter: (a, b) => new Date(a.bookedOn).getTime() - new Date(b.bookedOn).getTime(),
+        render: (value: string) => new Date(value).toLocaleDateString(locale),
+      },
+      {
+        title: t('transactions.columns.amount'),
+        dataIndex: 'quantity',
+        key: 'quantity',
+        align: 'right',
+        sorter: (a, b) => a.quantity - b.quantity,
+        render: (value: number, record: TransactionItem) => {
+          const absValue = Math.abs(value)
+          const prefix = value > 0 ? '+' : value < 0 ? '-' : ''
+          const amountClassName =
+            value > 0
+              ? 'transaction-amount transaction-amount-positive'
+              : value < 0
+                ? 'transaction-amount transaction-amount-negative'
+                : 'transaction-amount'
+          return (
+            <Typography.Text strong className={amountClassName}>
+              {prefix}
+              {formatCurrency(absValue, locale, record.currencyCode ?? 'EUR')}
+            </Typography.Text>
+          )
+        },
+      },
+      {
+        title: t('transactions.columns.merchant'),
+        dataIndex: 'merchant',
+        key: 'merchant',
+        sorter: (a, b) => a.merchant.localeCompare(b.merchant, locale),
+      },
+    ],
+    [locale, t],
+  )
 
   function closeAllPopups() {
     setOpenPopup(createClosedPopupState())
@@ -157,18 +164,18 @@ export function TransactionsTable({
   }
 
   return (
-    <Card className={cardClassName} title={title} variant="borderless">
+    <Card className={cardClassName} title={cardTitle} variant="borderless">
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input
             allowClear
-            placeholder="Beschreibung"
+            placeholder={t('transactions.filters.note')}
             value={filters.searchTerm}
             onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
           />
           <Select
             allowClear
-            placeholder="Konto"
+            placeholder={t('transactions.filters.account')}
             value={filters.accountId}
             options={accounts.map((account) => ({ value: account.id, label: account.name }))}
             onChange={(value) => onFiltersChange({ ...filters, accountId: value })}
@@ -177,7 +184,7 @@ export function TransactionsTable({
           />
           <Select
             allowClear
-            placeholder="Kategorie"
+            placeholder={t('transactions.filters.category')}
             value={filters.categoryId}
             options={categories.map((category) => ({ value: category.id, label: category.name }))}
             onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
@@ -185,9 +192,9 @@ export function TransactionsTable({
             onOpenChange={(isOpen) => setPopupOpen('category', isOpen)}
           />
           <DatePicker
-            placeholder="Buchung von"
+            placeholder={t('transactions.filters.bookedFrom')}
             value={filters.bookedFrom ? dayjs(filters.bookedFrom) : null}
-            format="DD.MM.YYYY"
+            format={dateInputFormat}
             onChange={(date) =>
               onFiltersChange({
                 ...filters,
@@ -197,9 +204,9 @@ export function TransactionsTable({
             onOpenChange={(isOpen) => setPopupOpen('bookedFrom', isOpen)}
           />
           <DatePicker
-            placeholder="Buchung bis"
+            placeholder={t('transactions.filters.bookedTo')}
             value={filters.bookedTo ? dayjs(filters.bookedTo) : null}
-            format="DD.MM.YYYY"
+            format={dateInputFormat}
             onChange={(date) =>
               onFiltersChange({
                 ...filters,
@@ -211,14 +218,14 @@ export function TransactionsTable({
           <InputNumber<string>
             stringMode
             step="1"
-            placeholder="Betrag min"
+            placeholder={t('transactions.filters.minAmount')}
             value={filters.minAmount ?? null}
             onChange={(value) => onFiltersChange({ ...filters, minAmount: value ?? undefined })}
           />
           <InputNumber<string>
             stringMode
             step="1"
-            placeholder="Betrag max"
+            placeholder={t('transactions.filters.maxAmount')}
             value={filters.maxAmount ?? null}
             onChange={(value) => onFiltersChange({ ...filters, maxAmount: value ?? undefined })}
           />
@@ -228,7 +235,7 @@ export function TransactionsTable({
               onApplyFilters()
             }}
           >
-            Anwenden
+            {t('transactions.filters.apply')}
           </Button>
           <Button
             onClick={() => {
@@ -236,7 +243,7 @@ export function TransactionsTable({
               onResetFilters()
             }}
           >
-            Zurücksetzen
+            {t('transactions.filters.reset')}
           </Button>
         </Space>
       </div>
@@ -247,7 +254,7 @@ export function TransactionsTable({
         loading={isLoading}
         pagination={false}
         size="middle"
-        locale={{ emptyText: 'Keine Transaktionen vorhanden.' }}
+        locale={{ emptyText: t('transactions.empty') }}
       />
       <Pagination
         current={page}
@@ -256,7 +263,9 @@ export function TransactionsTable({
         onChange={onPageChange}
         showSizeChanger
         pageSizeOptions={['25', '50', '100']}
-        showTotal={(total, range) => `${range[0]}-${range[1]} von ${total}`}
+        showTotal={(total, range) =>
+          t('transactions.pagination.rangeOfTotal', { start: range[0], end: range[1], total })
+        }
       />
     </Card>
   )

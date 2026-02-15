@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
 import { fetchTransactionsPage } from '../api/transactionsApi'
@@ -74,15 +75,16 @@ function normalizeDraftFilters(draft: TransactionFilterDraft): TransactionFilter
   }
 }
 
-function toErrorMessage(error: unknown): string | null {
+function toErrorMessage(error: unknown, fallbackMessage: string): string | null {
   if (!error) {
     return null
   }
 
-  return error instanceof Error ? error.message : 'Transaktionen konnten nicht geladen werden.'
+  return error instanceof Error ? error.message : fallbackMessage
 }
 
 export function useTransactionsTableData(): UseTransactionsTableDataResult {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [draftFilters, setDraftFilters] = useState<TransactionFilterDraft>(emptyDraftFilters)
@@ -128,21 +130,22 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
         return {
           id: transaction.id,
           note: transaction.note,
-          account: account?.name ?? '(Unbekanntes Konto)',
-          category: category?.name ?? '(Unbekannte Kategorie)',
+          account: account?.name ?? t('transactions.fallback.unknownAccount'),
+          category: category?.name ?? t('transactions.fallback.unknownCategory'),
           bookedOn: transaction.bookedOn,
           quantity: transaction.amount,
           merchant: transaction.merchant?.trim() ? transaction.merchant : '-',
           currencyCode: account?.currencyCode ?? 'EUR',
         }
       }),
-    [rawItems, accountsById, categoriesById],
+    [rawItems, accountsById, categoriesById, t],
   )
 
+  const transactionsLoadError = t('errors.transactionsLoad')
   const error =
-    toErrorMessage(transactionsQuery.error) ??
-    toErrorMessage(accountsQuery.error) ??
-    toErrorMessage(categoriesQuery.error)
+    toErrorMessage(transactionsQuery.error, transactionsLoadError) ??
+    toErrorMessage(accountsQuery.error, transactionsLoadError) ??
+    toErrorMessage(categoriesQuery.error, transactionsLoadError)
 
   const isLoading = transactionsQuery.isPending && !transactionsQuery.data
 

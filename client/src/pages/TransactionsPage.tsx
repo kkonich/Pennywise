@@ -1,8 +1,10 @@
 import { Alert } from 'antd'
+import { useTranslation } from 'react-i18next'
 import { TransactionsTable } from '../components/TransactionsTable'
 import { useTransactionsTableData } from '../hooks/useTransactionsTableData'
 
 export function TransactionsPage() {
+  const { t } = useTranslation()
   const {
     items,
     isLoading,
@@ -25,7 +27,7 @@ export function TransactionsPage() {
         <Alert
           type="error"
           showIcon
-          message="Transaktionen konnten nicht geladen werden."
+          message={t('errors.transactionsLoad')}
           description={error}
           style={{ marginBottom: 12 }}
         />

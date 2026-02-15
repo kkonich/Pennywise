@@ -5,7 +5,7 @@ export type NavSection = 'main' | 'bottom'
 
 export type NavItem = {
   key: string
-  label: string
+  labelKey: string
   section: NavSection
   icon: ReactNode
 }
@@ -13,31 +13,31 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   {
     key: '/dashboard',
-    label: 'Dashboard',
+    labelKey: 'nav.dashboard',
     section: 'main',
     icon: <DashboardOutlined />,
   },
   {
     key: '/accounts',
-    label: 'Accounts',
+    labelKey: 'nav.accounts',
     section: 'main',
     icon: <WalletOutlined />,
   },
   {
     key: '/categories',
-    label: 'Categories',
+    labelKey: 'nav.categories',
     section: 'main',
     icon: <TagsOutlined />,
   },
   {
     key: '/transactions',
-    label: 'Transactions',
+    labelKey: 'nav.transactions',
     section: 'main',
     icon: <SwapOutlined />,
   },
   {
     key: '/settings',
-    label: 'Settings',
+    labelKey: 'nav.settings',
     section: 'bottom',
     icon: <SettingOutlined />,
   },
