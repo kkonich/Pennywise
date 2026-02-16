@@ -32,6 +32,8 @@
 }
 
 .transactions-table-popup-open .ant-table-wrapper,
+.transactions-table-popup-open .ant-table,
+.transactions-table-popup-open .ant-table-container,
 .transactions-table-popup-open .ant-pagination {
   pointer-events: none;
 }

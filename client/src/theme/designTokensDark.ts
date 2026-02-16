@@ -4,6 +4,7 @@ export const designTokens = {
   // Core
   colorBgApp: '#0f1724',
   colorSurface: 'rgba(255, 255, 255, 0.02)',
+  colorSurfaceElevated: '#152235',
   colorBorder: 'rgba(130, 155, 196, 0.2)',
   colorAccent: '#16315f',
   colorAccentHover: '#132950',
@@ -45,7 +46,7 @@ const cssVariables: Record<string, string> = {
   '--color-sidebar-bg': designTokens.colorSidebarBg,
   '--color-surface-soft': designTokens.colorSurface,
   '--color-surface-faint': designTokens.colorSurface,
-  '--color-surface-elevated': designTokens.colorSurface,
+  '--color-surface-elevated': designTokens.colorSurfaceElevated,
   '--color-border-dashed': designTokens.colorBorder,
   '--color-menu-active-bg': designTokens.colorAccent,
   '--color-menu-hover-bg': designTokens.colorAccentHover,

@@ -4,7 +4,7 @@ import { designTokens } from './designTokensDark'
 export const antdDarkTheme: ThemeConfig = {
   token: {
     colorBgContainer: designTokens.colorSurface,
-    colorBgElevated: designTokens.colorSurface,
+    colorBgElevated: designTokens.colorSurfaceElevated,
     colorBorder: designTokens.colorBorder,
     colorBorderSecondary: designTokens.colorBorder,
     colorText: designTokens.colorText2,
@@ -16,6 +16,7 @@ export const antdDarkTheme: ThemeConfig = {
     colorIconHover: designTokens.colorText1,
     colorFillAlter: designTokens.colorHoverFill,
     controlItemBgHover: designTokens.colorRowHover,
+    zIndexPopupBase: 1300,
   },
   components: {
     Input: {
