@@ -7,6 +7,8 @@ export const designTokens = {
   colorBorder: 'rgba(130, 155, 196, 0.2)',
   colorAccent: '#16315f',
   colorAccentHover: '#132950',
+  colorSidebarBorder: '#121D30',
+  colorSidebarBg: '#0C131F',
 
   // Text
   colorText1: '#f1f5ff',
@@ -39,6 +41,8 @@ const cssVariables: Record<string, string> = {
   '--color-bg-app': designTokens.colorBgApp,
   '--color-text-primary': designTokens.colorText1,
   '--color-border-soft': designTokens.colorBorder,
+  '--color-sidebar-border': designTokens.colorSidebarBorder,
+  '--color-sidebar-bg': designTokens.colorSidebarBg,
   '--color-surface-soft': designTokens.colorSurface,
   '--color-surface-faint': designTokens.colorSurface,
   '--color-surface-elevated': designTokens.colorSurface,

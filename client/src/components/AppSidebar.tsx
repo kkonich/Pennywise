@@ -25,7 +25,7 @@ export function AppSidebar({ selectedMenuKey, onNavigate }: AppSidebarProps) {
     .map(({ key, labelKey, icon }) => ({ key, label: t(labelKey), icon }))
 
   return (
-    <Layout.Sider width={260} className="app-sider" theme="dark">
+    <Layout.Sider width={260} className="app-sider">
       <div className="sider-inner">
         <div className="brand">
           <img className="brand-logo" src={logo} alt={t('brand.logoAlt')} />
