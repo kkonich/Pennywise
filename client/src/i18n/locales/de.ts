@@ -4,6 +4,10 @@ const de = {
       page: 'Seite',
     },
     errors: {
+      accountsLoad: 'Konten konnten nicht geladen werden.',
+      accountCreate: 'Konto konnte nicht erstellt werden.',
+      accountUpdate: 'Konto konnte nicht gespeichert werden.',
+      accountDelete: 'Konto konnte nicht gelöscht werden.',
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
       transactionCreate: 'Transaktion konnte nicht erstellt werden.',
       transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
@@ -19,8 +23,56 @@ const de = {
       transactions: 'Transaktionen',
       settings: 'Einstellungen',
     },
+    accounts: {
+      title: 'Konten',
+      empty: 'Keine Konten vorhanden.',
+      columns: {
+        name: 'Name',
+        currency: 'Währung',
+        balance: 'Kontostand',
+        createdAt: 'Erstellt am',
+      },
+      actions: {
+        edit: 'Konto bearbeiten',
+        delete: 'Konto löschen',
+      },
+      edit: {
+        title: 'Konto bearbeiten',
+        save: 'Speichern',
+        cancel: 'Abbrechen',
+        success: 'Konto wurde erfolgreich gespeichert.',
+      },
+      create: {
+        open: 'Konto hinzufügen',
+        title: 'Konto hinzufügen',
+        save: 'Erstellen',
+        cancel: 'Abbrechen',
+        success: 'Konto wurde erfolgreich erstellt.',
+      },
+      delete: {
+        confirmTitle: 'Konto löschen?',
+        confirmDescription: 'Möchtest du dieses Konto wirklich löschen?',
+        cascadeWarning:
+          'Beim Löschen eines Kontos werden auch alle damit verbundenen Transaktionen gelöscht!',
+        confirm: 'Löschen',
+        cancel: 'Abbrechen',
+        success: 'Konto wurde erfolgreich gelöscht.',
+      },
+      filters: {
+        search: 'Nach Name oder Währung suchen',
+        currency: 'Währung',
+        apply: 'Anwenden',
+        reset: 'Zurücksetzen',
+      },
+      pagination: {
+        rangeOfTotal: '{{start}}-{{end}} von {{total}}',
+      },
+      validation: {
+        balanceRequired: 'Kontostand ist erforderlich.',
+      },
+    },
     transactions: {
-      titleLatest: 'Letzte Transaktionen',
+      titleLatest: 'Alle Transaktionen',
       empty: 'Keine Transaktionen vorhanden.',
       fallback: {
         unknownAccount: '(Unbekanntes Konto)',

@@ -13,6 +13,7 @@ import 'antd/dist/reset.css'
 import './i18n'
 import App from './App.tsx'
 import { DEFAULT_ROUTE } from './navigation/navConfig'
+import { AccountsPage } from './pages/AccountsPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { antdDarkTheme } from './theme/antdDarkTheme'
 import { applyDesignTokens } from './theme/designTokensDark.ts'
@@ -28,7 +29,7 @@ const queryClient = new QueryClient({
 
 applyDesignTokens()
 
-function AppProviders() {
+export function AppProviders() {
   const { i18n } = useTranslation()
   const isGerman = i18n.resolvedLanguage === 'de'
 
@@ -46,7 +47,7 @@ function AppProviders() {
             <Route path="/" element={<App />}>
               <Route index element={<Navigate to={DEFAULT_ROUTE} replace />} />
               <Route path="dashboard" element={<></>} />
-              <Route path="accounts" element={<></>} />
+              <Route path="accounts" element={<AccountsPage />} />
               <Route path="categories" element={<></>} />
               <Route path="transactions" element={<TransactionsPage />} />
               <Route path="settings" element={<></>} />

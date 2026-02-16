@@ -1,0 +1,57 @@
+/* Accounts page styles (scoped) */
+.accounts-table {
+  border-radius: 12px;
+}
+
+.accounts-table .ant-card-body {
+  padding-top: 10px;
+}
+
+.accounts-filters {
+  margin-bottom: 14px;
+}
+
+.accounts-filters :is(.ant-input, .ant-input-affix-wrapper, .ant-select, .ant-input-number) {
+  width: 200px;
+}
+
+.accounts-table .ant-table-tbody > tr > td {
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+.accounts-table .ant-table-tbody > tr.accounts-row-selected > td {
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-selected-text);
+}
+
+.accounts-table .ant-table-tbody > tr.accounts-row-selected:hover > td {
+  background: var(--color-surface-elevated) !important;
+}
+
+.accounts-table .ant-table-thead > tr > th {
+  user-select: none;
+}
+
+.accounts-table .accounts-row-actions {
+  visibility: hidden;
+}
+
+.accounts-table .accounts-row-actions.is-visible {
+  visibility: visible;
+}
+
+.accounts-table .account-balance {
+  color: var(--color-transaction-amount);
+}
+
+.accounts-table-popup-open .ant-table-wrapper,
+.accounts-table-popup-open .ant-table,
+.accounts-table-popup-open .ant-table-container,
+.accounts-table-popup-open .ant-pagination {
+  pointer-events: none;
+}
+
+.accounts-edit-modal .ant-form-item-required::before {
+  color: var(--color-required-mark) !important;
+}
