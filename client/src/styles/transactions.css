@@ -38,10 +38,28 @@
 
 .transactions-table .ant-table-tbody > tr > td {
   color: var(--color-text-secondary);
+  user-select: none;
+}
+
+.transactions-table .ant-table-tbody > tr.transactions-row-selected > td {
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-selected-text);
+}
+
+.transactions-table .ant-table-tbody > tr.transactions-row-selected:hover > td {
+  background: var(--color-surface-elevated) !important;
 }
 
 .transactions-table .ant-table-thead > tr > th {
   user-select: none;
+}
+
+.transactions-table .transactions-row-actions {
+  visibility: hidden;
+}
+
+.transactions-table .transactions-row-actions.is-visible {
+  visibility: visible;
 }
 
 .transactions-table .transaction-amount {

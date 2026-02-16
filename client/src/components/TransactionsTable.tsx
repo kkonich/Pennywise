@@ -1,5 +1,6 @@
 import { Button, Card, DatePicker, Input, InputNumber, Pagination, Select, Space, Table, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -71,6 +72,7 @@ export function TransactionsTable({
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
@@ -134,8 +136,37 @@ export function TransactionsTable({
         key: 'merchant',
         sorter: (a, b) => a.merchant.localeCompare(b.merchant, locale),
       },
+      {
+        title: '',
+        key: 'actions',
+        align: 'right',
+        width: 96,
+        render: (_value, record) => {
+          const isSelected = record.id === selectedRowId
+          return (
+            <Space size={4} className={isSelected ? 'transactions-row-actions is-visible' : 'transactions-row-actions'}>
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                aria-label="Edit transaction"
+                onClick={(event) => {
+                  event.stopPropagation()
+                }}
+              />
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                aria-label="Delete transaction"
+                onClick={(event) => {
+                  event.stopPropagation()
+                }}
+              />
+            </Space>
+          )
+        },
+      },
     ],
-    [locale, t],
+    [locale, selectedRowId, t],
   )
 
   function closeAllPopups() {
@@ -252,6 +283,12 @@ export function TransactionsTable({
         columns={columns}
         showSorterTooltip={{ target: 'sorter-icon', mouseEnterDelay: 0.5 }}
         dataSource={items}
+        rowClassName={(record) => (record.id === selectedRowId ? 'transactions-row-selected' : '')}
+        onRow={(record) => ({
+          onClick: () => {
+            setSelectedRowId((prev) => (prev === record.id ? null : record.id))
+          },
+        })}
         loading={isLoading}
         pagination={false}
         size="middle"
