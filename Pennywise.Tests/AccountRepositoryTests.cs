@@ -148,6 +148,53 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         Assert.Null(fetched);
     }
 
+    [Fact(DisplayName = "DeleteAsync deletes related transactions")]
+    public async Task DeleteAsync_removes_related_transactions()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new AccountRepository(context);
+
+        var accountId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+
+        await context.Categories.AddAsync(new Category
+        {
+            Id = categoryId,
+            Name = "Groceries",
+            Type = CategoryType.Expense,
+            SortOrder = 1,
+            IsArchived = false,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await repository.AddAsync(new Account
+        {
+            Id = accountId,
+            Name = "Main",
+            CurrencyCode = "EUR",
+            Balance = 100m,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await context.Transactions.AddAsync(new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountId,
+            CategoryId = categoryId,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = -15m,
+            Note = "Milk",
+            Merchant = "Store",
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        await repository.DeleteAsync(accountId);
+
+        var transactionCount = await context.Transactions.CountAsync();
+        Assert.Equal(0, transactionCount);
+    }
+
     // Helper function
     private async Task<PennywiseDbContext> CreateNewContextAsync()
     {

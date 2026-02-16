@@ -35,6 +35,16 @@ public sealed class PennywiseDbContext : DbContext
             entity.HasKey(transaction => transaction.Id);
             entity.ToTable("Transaction");
             entity.HasIndex(transaction => new { transaction.BookedOn, transaction.CreatedAt });
+
+            entity.HasOne(transaction => transaction.Account)
+                .WithMany(account => account.Transactions)
+                .HasForeignKey(transaction => transaction.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(transaction => transaction.Category)
+                .WithMany(category => category.Transactions)
+                .HasForeignKey(transaction => transaction.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
