@@ -1,4 +1,4 @@
-import { getJson, putJson } from './http'
+import { deleteJson, getJson, putJson } from './http'
 import type { TransactionDto, TransactionFilters, TransactionPageDto, TransactionUpdateRequest } from '../types/transaction'
 
 type FetchTransactionsPageParams = {
@@ -49,6 +49,10 @@ export function fetchTransactionsPage(params: FetchTransactionsPageParams): Prom
 
 export function updateTransaction(id: string, request: TransactionUpdateRequest): Promise<void> {
   return putJson(`/api/transactions/${id}`, { body: request })
+}
+
+export function deleteTransaction(id: string): Promise<void> {
+  return deleteJson(`/api/transactions/${id}`)
 }
 
 function normalizeTransactionsPageResponse(

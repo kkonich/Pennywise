@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
-import { fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
+import { deleteTransaction, fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
@@ -34,7 +34,9 @@ type UseTransactionsTableDataResult = {
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
+  onDeleteTransaction: (id: string) => Promise<void>
   isUpdatingTransaction: boolean
+  isDeletingTransaction: boolean
 }
 
 const emptyDraftFilters: TransactionFilterDraft = {
@@ -181,6 +183,51 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTransaction(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] })
+
+      const previousQueries = queryClient.getQueriesData<TransactionPageDto>({
+        queryKey: ['transactions'],
+      })
+
+      queryClient.setQueriesData<TransactionPageDto>({ queryKey: ['transactions'] }, (current) => {
+        if (!current) {
+          return current
+        }
+
+        const nextItems = current.items.filter((item) => item.id !== id)
+        if (nextItems.length === current.items.length) {
+          return current
+        }
+
+        return {
+          ...current,
+          items: nextItems,
+          totalCount: Math.max(0, current.totalCount - 1),
+        }
+      })
+
+      return { previousQueries: previousQueries as TransactionsSnapshot }
+    },
+    onError: (_error, _variables, context) => {
+      if (!context?.previousQueries) {
+        return
+      }
+
+      context.previousQueries.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data)
+      })
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchType: 'active',
+      })
+    },
+  })
+
   const accounts = accountsQuery.data ?? []
   const categories = categoriesQuery.data ?? []
   const rawItems = transactionsQuery.data?.items ?? []
@@ -248,6 +295,10 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     await updateMutation.mutateAsync({ id, request })
   }
 
+  async function onDeleteTransaction(id: string) {
+    await deleteMutation.mutateAsync(id)
+  }
+
   return {
     items,
     isLoading,
@@ -263,6 +314,8 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onResetFilters,
     onPageChange,
     onUpdateTransaction,
+    onDeleteTransaction,
     isUpdatingTransaction: updateMutation.isPending,
+    isDeletingTransaction: deleteMutation.isPending,
   }
 }

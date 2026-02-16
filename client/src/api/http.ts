@@ -48,3 +48,18 @@ export async function putJson(path: string, options: JsonRequestOptions): Promis
     throw new HttpError(response.status, message)
   }
 }
+
+export async function deleteJson(path: string, options: RequestOptions = {}): Promise<void> {
+  const response = await fetch(path, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+    },
+    signal: options.signal,
+  })
+
+  if (!response.ok) {
+    const message = `Request failed with status ${response.status}`
+    throw new HttpError(response.status, message)
+  }
+}

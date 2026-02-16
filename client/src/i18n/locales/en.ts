@@ -6,6 +6,7 @@ const en = {
     errors: {
       transactionsLoad: 'Transactions could not be loaded.',
       transactionUpdate: 'Transaction could not be saved.',
+      transactionDelete: 'Transaction could not be deleted.',
     },
     brand: {
       logoAlt: 'Pennywise',
@@ -40,6 +41,13 @@ const en = {
         title: 'Edit transaction',
         save: 'Save',
         cancel: 'Cancel',
+      },
+      delete: {
+        confirmTitle: 'Delete transaction?',
+        confirmDescription: 'Do you really want to delete this transaction?',
+        confirm: 'Delete',
+        cancel: 'Cancel',
+        success: 'Transaction deleted successfully.',
       },
       filters: {
         note: 'Description',

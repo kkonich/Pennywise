@@ -85,6 +85,24 @@
   margin-bottom: 12px;
 }
 
+.transactions-success-alert.ant-alert {
+  margin-bottom: 12px;
+}
+
+.transactions-success-alert.ant-alert-success {
+  background: var(--color-alert-success-bg);
+  border-color: var(--color-alert-success-border);
+}
+
+.transactions-success-alert .ant-alert-message {
+  color: var(--color-text-primary);
+}
+
+.transactions-success-alert .ant-alert-icon,
+.transactions-success-alert .ant-alert-close-icon {
+  color: var(--color-alert-success-icon);
+}
+
 .transactions-edit-modal .ant-form-item-required::before {
   color: var(--color-required-mark) !important;
 }

@@ -6,6 +6,7 @@ const de = {
     errors: {
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
       transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
+      transactionDelete: 'Transaktion konnte nicht gelöscht werden.',
     },
     brand: {
       logoAlt: 'Pennywise',
@@ -40,6 +41,13 @@ const de = {
         title: 'Transaktion bearbeiten',
         save: 'Speichern',
         cancel: 'Abbrechen',
+      },
+      delete: {
+        confirmTitle: 'Transaktion löschen?',
+        confirmDescription: 'Möchtest du diese Transaktion wirklich löschen?',
+        confirm: 'Löschen',
+        cancel: 'Abbrechen',
+        success: 'Transaktion wurde erfolgreich gelöscht.',
       },
       filters: {
         note: 'Beschreibung',

@@ -1,9 +1,23 @@
+.app-dark,
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
 .app-shell {
-  min-height: 100vh;
+  height: 100%;
   background-color: var(--color-bg-app);
+  overflow: hidden;
 }
 
 .page-content {
+  height: 100vh;
+  overflow-y: auto;
   padding: 28px;
   background-color: var(--color-bg-app);
 }

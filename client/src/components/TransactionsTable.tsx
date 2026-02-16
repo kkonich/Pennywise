@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   DatePicker,
@@ -16,7 +17,7 @@ import {
 import type { TableColumnsType } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
@@ -52,7 +53,9 @@ type TransactionsTableProps = {
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
+  onDeleteTransaction: (id: string) => Promise<void>
   isUpdatingTransaction?: boolean
+  isDeletingTransaction?: boolean
 }
 
 type OpenPopupState = {
@@ -99,7 +102,9 @@ export function TransactionsTable({
   onResetFilters,
   onPageChange,
   onUpdateTransaction,
+  onDeleteTransaction,
   isUpdatingTransaction = false,
+  isDeletingTransaction = false,
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
@@ -107,6 +112,8 @@ export function TransactionsTable({
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
+  const [deletingTransaction, setDeletingTransaction] = useState<TransactionItem | null>(null)
+  const [deleteSuccessMessage, setDeleteSuccessMessage] = useState<string | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
@@ -203,6 +210,7 @@ export function TransactionsTable({
                     merchant: record.merchantValue,
                   })
                 }}
+                disabled={isDeletingTransaction}
               />
               <Button
                 type="text"
@@ -210,14 +218,16 @@ export function TransactionsTable({
                 aria-label={t('transactions.actions.delete')}
                 onClick={(event) => {
                   event.stopPropagation()
+                  setDeletingTransaction(record)
                 }}
+                disabled={isDeletingTransaction}
               />
             </Space>
           )
         },
       },
     ],
-    [editForm, locale, selectedRowId, t],
+    [editForm, isDeletingTransaction, locale, selectedRowId, t],
   )
 
   function closeAllPopups() {
@@ -271,9 +281,57 @@ export function TransactionsTable({
     }
   }
 
+  function closeDeleteModal() {
+    if (isDeletingTransaction) {
+      return
+    }
+
+    setDeletingTransaction(null)
+  }
+
+  async function onDeleteConfirm() {
+    if (!deletingTransaction) {
+      return
+    }
+
+    const transactionId = deletingTransaction.id
+    setDeletingTransaction(null)
+
+    try {
+      await onDeleteTransaction(transactionId)
+      setDeleteSuccessMessage(t('transactions.delete.success'))
+    } catch (error) {
+      messageApi.error(error instanceof Error ? error.message : t('errors.transactionDelete'))
+    }
+  }
+
+  useEffect(() => {
+    if (!deleteSuccessMessage) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setDeleteSuccessMessage(null)
+    }, 5000)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [deleteSuccessMessage])
+
   return (
     <Card className={cardClassName} title={cardTitle} variant="borderless">
       {messageContextHolder}
+      {deleteSuccessMessage && (
+        <Alert
+          type="success"
+          showIcon
+          closable
+          className="transactions-success-alert"
+          message={deleteSuccessMessage}
+          onClose={() => setDeleteSuccessMessage(null)}
+        />
+      )}
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input
@@ -423,6 +481,30 @@ export function TransactionsTable({
             <Input />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        open={deletingTransaction !== null}
+        centered
+        title={t('transactions.delete.confirmTitle')}
+        okText={t('transactions.delete.confirm')}
+        cancelText={t('transactions.delete.cancel')}
+        onOk={() => {
+          void onDeleteConfirm()
+        }}
+        onCancel={closeDeleteModal}
+        confirmLoading={isDeletingTransaction}
+        maskClosable={!isDeletingTransaction}
+      >
+        {deletingTransaction && (
+          <Typography.Paragraph style={{ marginBottom: 0 }}>
+            {t('transactions.delete.confirmDescription')}{' '}
+            (
+            {deletingTransaction.note}, {deletingTransaction.account},{' '}
+            {formatCurrency(Math.abs(deletingTransaction.quantity), locale, deletingTransaction.currencyCode ?? 'EUR')}
+            )
+          </Typography.Paragraph>
+        )}
       </Modal>
     </Card>
   )

@@ -20,7 +20,9 @@ export function TransactionsPage() {
     onResetFilters,
     onPageChange,
     onUpdateTransaction,
+    onDeleteTransaction,
     isUpdatingTransaction,
+    isDeletingTransaction,
   } = useTransactionsTableData()
 
   return (
@@ -48,7 +50,9 @@ export function TransactionsPage() {
         onResetFilters={onResetFilters}
         onPageChange={onPageChange}
         onUpdateTransaction={onUpdateTransaction}
+        onDeleteTransaction={onDeleteTransaction}
         isUpdatingTransaction={isUpdatingTransaction}
+        isDeletingTransaction={isDeletingTransaction}
       />
     </>
   )
