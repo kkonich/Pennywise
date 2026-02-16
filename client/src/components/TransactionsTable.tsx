@@ -1,4 +1,4 @@
-import { Button, Card, DatePicker, Input, InputNumber, Pagination, Select, Space, Table, Typography } from 'antd'
+import { Alert, Button, Card, DatePicker, Form, Input, InputNumber, Modal, Pagination, Select, Space, Table, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -7,15 +7,19 @@ import { useTranslation } from 'react-i18next'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
+import type { TransactionUpdateRequest } from '../types/transaction'
 
 export type TransactionItem = {
   id: string
+  accountId: string
+  categoryId: string
   note: string
   account: string
   category: string
   bookedOn: string
   quantity: number
   merchant: string
+  merchantValue?: string
   currencyCode?: string
 }
 
@@ -33,6 +37,8 @@ type TransactionsTableProps = {
   onApplyFilters: () => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
+  onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
+  isUpdatingTransaction?: boolean
 }
 
 type OpenPopupState = {
@@ -55,6 +61,15 @@ function formatCurrency(value: number, locale: string, currencyCode = 'EUR'): st
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(value)
 }
 
+type EditFormValues = {
+  note: string
+  accountId: string
+  categoryId: string
+  bookedOn: dayjs.Dayjs
+  amount: number
+  merchant?: string
+}
+
 export function TransactionsTable({
   items,
   title,
@@ -69,16 +84,24 @@ export function TransactionsTable({
   onApplyFilters,
   onResetFilters,
   onPageChange,
+  onUpdateTransaction,
+  isUpdatingTransaction = false,
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
+
+  // Component-local UI state (open popups, selected row, edit dialog state).
+  const [editForm] = Form.useForm<EditFormValues>()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+  const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
   const hasOpenPopup = useMemo(() => Object.values(openPopup).some(Boolean), [openPopup])
   const cardTitle = title ?? t('transactions.titleLatest')
 
+  // Table column setup including formatting, sorting and per-row actions.
   const cardClassName = hasOpenPopup ? 'transactions-table transactions-table-popup-open' : 'transactions-table'
   const columns: TableColumnsType<TransactionItem> = useMemo(
     () => [
@@ -148,15 +171,25 @@ export function TransactionsTable({
               <Button
                 type="text"
                 icon={<EditOutlined />}
-                aria-label="Edit transaction"
+                aria-label={t('transactions.actions.edit')}
                 onClick={(event) => {
                   event.stopPropagation()
+                  setEditError(null)
+                  setEditingTransaction(record)
+                  editForm.setFieldsValue({
+                    note: record.note,
+                    accountId: record.accountId,
+                    categoryId: record.categoryId,
+                    bookedOn: dayjs(record.bookedOn),
+                    amount: record.quantity,
+                    merchant: record.merchantValue,
+                  })
                 }}
               />
               <Button
                 type="text"
                 icon={<DeleteOutlined />}
-                aria-label="Delete transaction"
+                aria-label={t('transactions.actions.delete')}
                 onClick={(event) => {
                   event.stopPropagation()
                 }}
@@ -166,7 +199,7 @@ export function TransactionsTable({
         },
       },
     ],
-    [locale, selectedRowId, t],
+    [editForm, locale, selectedRowId, t],
   )
 
   function closeAllPopups() {
@@ -177,6 +210,8 @@ export function TransactionsTable({
     setOpenPopup((prev) => ({ ...prev, [key]: isOpen }))
   }
 
+  // Keyboard behavior for the filter bar:
+  // Escape closes open pickers/selects, Enter applies filters.
   function onFiltersKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement
 
@@ -194,8 +229,38 @@ export function TransactionsTable({
     }
   }
 
+  function closeEditModal() {
+    setEditError(null)
+    setEditingTransaction(null)
+    editForm.resetFields()
+  }
+
+  // Persist edit form changes for the active transaction.
+  async function onEditSubmit(values: EditFormValues) {
+    if (!editingTransaction) {
+      return
+    }
+
+    setEditError(null)
+
+    try {
+      await onUpdateTransaction(editingTransaction.id, {
+        accountId: values.accountId,
+        categoryId: values.categoryId,
+        bookedOn: values.bookedOn.format('YYYY-MM-DD'),
+        amount: values.amount,
+        note: values.note.trim(),
+        merchant: values.merchant?.trim() ? values.merchant.trim() : null,
+      })
+      closeEditModal()
+    } catch (error) {
+      setEditError(error instanceof Error ? error.message : t('errors.transactionUpdate'))
+    }
+  }
+
   return (
     <Card className={cardClassName} title={cardTitle} variant="borderless">
+      {/* Filter controls */}
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input
@@ -278,6 +343,8 @@ export function TransactionsTable({
           </Button>
         </Space>
       </div>
+
+      {/* Data table with row selection and inline row actions */}
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}
@@ -305,6 +372,44 @@ export function TransactionsTable({
           t('transactions.pagination.rangeOfTotal', { start: range[0], end: range[1], total })
         }
       />
+
+      {/* Edit transaction modal */}
+      <Modal
+        open={editingTransaction !== null}
+        wrapClassName="transactions-edit-modal"
+        title={t('transactions.edit.title')}
+        okText={t('transactions.edit.save')}
+        cancelText={t('transactions.edit.cancel')}
+        onOk={() => {
+          void editForm.submit()
+        }}
+        onCancel={closeEditModal}
+        destroyOnClose
+        confirmLoading={isUpdatingTransaction}
+        maskClosable={!isUpdatingTransaction}
+      >
+        {editError && <Alert className="transactions-edit-error" type="error" showIcon message={editError} />}
+        <Form<EditFormValues> form={editForm} layout="vertical" onFinish={(values) => void onEditSubmit(values)}>
+          <Form.Item name="note" label={t('transactions.columns.note')} rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="accountId" label={t('transactions.columns.account')} rules={[{ required: true }]}>
+            <Select options={accounts.map((account) => ({ value: account.id, label: account.name }))} />
+          </Form.Item>
+          <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
+            <Select options={categories.map((category) => ({ value: category.id, label: category.name }))} />
+          </Form.Item>
+          <Form.Item name="bookedOn" label={t('transactions.columns.bookedOn')} rules={[{ required: true }]}>
+            <DatePicker format={dateInputFormat} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="amount" label={t('transactions.columns.amount')} rules={[{ required: true }]}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="merchant" label={t('transactions.columns.merchant')}>
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Card>
   )
 }

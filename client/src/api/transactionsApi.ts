@@ -1,5 +1,5 @@
-import { getJson } from './http'
-import type { TransactionDto, TransactionFilters, TransactionPageDto } from '../types/transaction'
+import { getJson, putJson } from './http'
+import type { TransactionDto, TransactionFilters, TransactionPageDto, TransactionUpdateRequest } from '../types/transaction'
 
 type FetchTransactionsPageParams = {
   page: number
@@ -45,6 +45,10 @@ export function fetchTransactionsPage(params: FetchTransactionsPageParams): Prom
   return getJson<TransactionPageDto | TransactionDto[]>(`/api/transactions?${query.toString()}`, {
     signal: params.signal,
   }).then((response) => normalizeTransactionsPageResponse(response, params.page, params.pageSize))
+}
+
+export function updateTransaction(id: string, request: TransactionUpdateRequest): Promise<void> {
+  return putJson(`/api/transactions/${id}`, { body: request })
 }
 
 function normalizeTransactionsPageResponse(

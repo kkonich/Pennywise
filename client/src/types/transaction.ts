@@ -25,3 +25,12 @@ export type TransactionFilters = {
   maxAmount?: number
   searchTerm?: string
 }
+
+export type TransactionUpdateRequest = {
+  accountId: string
+  categoryId: string
+  bookedOn: string
+  amount: number
+  note: string
+  merchant: string | null
+}

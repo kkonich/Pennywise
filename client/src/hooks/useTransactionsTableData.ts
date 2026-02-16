@@ -1,13 +1,13 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
-import { fetchTransactionsPage } from '../api/transactionsApi'
+import { fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionFilters } from '../types/transaction'
+import type { TransactionFilters, TransactionUpdateRequest } from '../types/transaction'
 
 export type TransactionFilterDraft = {
   accountId?: string
@@ -33,6 +33,8 @@ type UseTransactionsTableDataResult = {
   onApplyFilters: () => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
+  onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
+  isUpdatingTransaction: boolean
 }
 
 const emptyDraftFilters: TransactionFilterDraft = {
@@ -85,6 +87,7 @@ function toErrorMessage(error: unknown, fallbackMessage: string): string | null 
 
 export function useTransactionsTableData(): UseTransactionsTableDataResult {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [draftFilters, setDraftFilters] = useState<TransactionFilterDraft>(emptyDraftFilters)
@@ -114,6 +117,13 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     placeholderData: keepPreviousData,
   })
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, request }: { id: string; request: TransactionUpdateRequest }) => updateTransaction(id, request),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] })
+    },
+  })
+
   const accounts = accountsQuery.data ?? []
   const categories = categoriesQuery.data ?? []
   const rawItems = transactionsQuery.data?.items ?? []
@@ -129,12 +139,15 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
 
         return {
           id: transaction.id,
+          accountId: transaction.accountId,
+          categoryId: transaction.categoryId,
           note: transaction.note,
           account: account?.name ?? t('transactions.fallback.unknownAccount'),
           category: category?.name ?? t('transactions.fallback.unknownCategory'),
           bookedOn: transaction.bookedOn,
           quantity: transaction.amount,
           merchant: transaction.merchant?.trim() ? transaction.merchant : '-',
+          merchantValue: transaction.merchant?.trim() ? transaction.merchant.trim() : undefined,
           currencyCode: account?.currencyCode ?? 'EUR',
         }
       }),
@@ -174,6 +187,10 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     setPage(1)
   }
 
+  async function onUpdateTransaction(id: string, request: TransactionUpdateRequest) {
+    await updateMutation.mutateAsync({ id, request })
+  }
+
   return {
     items,
     isLoading,
@@ -188,5 +205,7 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onApplyFilters,
     onResetFilters,
     onPageChange,
+    onUpdateTransaction,
+    isUpdatingTransaction: updateMutation.isPending,
   }
 }

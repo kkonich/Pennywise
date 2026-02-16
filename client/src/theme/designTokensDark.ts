@@ -33,6 +33,7 @@ export const designTokens = {
   colorAlertErrorBg: 'rgba(211, 56, 82, 0.16)',
   colorAlertErrorBorder: 'rgba(211, 56, 82, 0.42)',
   colorAlertErrorIcon: '#ff788d',
+  colorRequiredMark: '#78c8ff',
 
   radiusControl: '10px',
   radiusCard: '12px',
@@ -79,6 +80,7 @@ const cssVariables: Record<string, string> = {
   '--color-alert-error-bg': designTokens.colorAlertErrorBg,
   '--color-alert-error-border': designTokens.colorAlertErrorBorder,
   '--color-alert-error-icon': designTokens.colorAlertErrorIcon,
+  '--color-required-mark': designTokens.colorRequiredMark,
   '--radius-control': designTokens.radiusControl,
   '--radius-card': designTokens.radiusCard,
 }

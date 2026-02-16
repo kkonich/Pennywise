@@ -5,6 +5,7 @@ const de = {
     },
     errors: {
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
+      transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
     },
     brand: {
       logoAlt: 'Pennywise',
@@ -30,6 +31,15 @@ const de = {
         bookedOn: 'Buchungsdatum',
         amount: 'Betrag',
         merchant: 'Transaktionspartner',
+      },
+      actions: {
+        edit: 'Transaktion bearbeiten',
+        delete: 'Transaktion löschen',
+      },
+      edit: {
+        title: 'Transaktion bearbeiten',
+        save: 'Speichern',
+        cancel: 'Abbrechen',
       },
       filters: {
         note: 'Beschreibung',

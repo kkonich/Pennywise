@@ -80,3 +80,11 @@
 .transactions-table-popup-open .ant-pagination {
   pointer-events: none;
 }
+
+.transactions-edit-error {
+  margin-bottom: 12px;
+}
+
+.transactions-edit-modal .ant-form-item-required::before {
+  color: var(--color-required-mark) !important;
+}
