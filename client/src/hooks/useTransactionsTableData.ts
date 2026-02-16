@@ -7,7 +7,7 @@ import { fetchTransactionsPage, updateTransaction } from '../api/transactionsApi
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionFilters, TransactionUpdateRequest } from '../types/transaction'
+import type { TransactionDto, TransactionFilters, TransactionPageDto, TransactionUpdateRequest } from '../types/transaction'
 
 export type TransactionFilterDraft = {
   accountId?: string
@@ -46,6 +46,8 @@ const emptyDraftFilters: TransactionFilterDraft = {
   maxAmount: undefined,
   searchTerm: undefined,
 }
+
+type TransactionsSnapshot = Array<[readonly unknown[], TransactionPageDto | undefined]>
 
 function toTrimmedString(value: string | undefined): string | undefined {
   if (!value) {
@@ -119,8 +121,63 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, request }: { id: string; request: TransactionUpdateRequest }) => updateTransaction(id, request),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['transactions'] })
+    onMutate: async ({ id, request }) => {
+      await queryClient.cancelQueries({ queryKey: ['transactions'] })
+
+      const previousQueries = queryClient.getQueriesData<TransactionPageDto>({
+        queryKey: ['transactions'],
+      })
+
+      queryClient.setQueriesData<TransactionPageDto>({ queryKey: ['transactions'] }, (current) => {
+        if (!current) {
+          return current
+        }
+
+        let hasChanged = false
+        const nextItems = current.items.map((item) => {
+          if (item.id !== id) {
+            return item
+          }
+
+          hasChanged = true
+          const merchant = request.merchant?.trim() ? request.merchant.trim() : null
+          return {
+            ...item,
+            accountId: request.accountId,
+            categoryId: request.categoryId,
+            bookedOn: request.bookedOn,
+            amount: request.amount,
+            note: request.note,
+            merchant,
+          } satisfies TransactionDto
+        })
+
+        if (!hasChanged) {
+          return current
+        }
+
+        return {
+          ...current,
+          items: nextItems,
+        }
+      })
+
+      return { previousQueries: previousQueries as TransactionsSnapshot }
+    },
+    onError: (_error, _variables, context) => {
+      if (!context?.previousQueries) {
+        return
+      }
+
+      context.previousQueries.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data)
+      })
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchType: 'active',
+      })
     },
   })
 

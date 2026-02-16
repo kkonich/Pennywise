@@ -1,4 +1,18 @@
-import { Alert, Button, Card, DatePicker, Form, Input, InputNumber, Modal, Pagination, Select, Space, Table, Typography } from 'antd'
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Pagination,
+  Select,
+  Space,
+  Table,
+  Typography,
+  message,
+} from 'antd'
 import type { TableColumnsType } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -88,20 +102,25 @@ export function TransactionsTable({
   isUpdatingTransaction = false,
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
-
-  // Component-local UI state (open popups, selected row, edit dialog state).
+  const [messageApi, messageContextHolder] = message.useMessage()
   const [editForm] = Form.useForm<EditFormValues>()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
-  const [editError, setEditError] = useState<string | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
   const hasOpenPopup = useMemo(() => Object.values(openPopup).some(Boolean), [openPopup])
+  const accountOptions = useMemo(
+    () =>
+      accounts.map((account) => ({
+        value: account.id,
+        label: `${account.name} (${account.currencyCode})`,
+      })),
+    [accounts],
+  )
   const cardTitle = title ?? t('transactions.titleLatest')
 
-  // Table column setup including formatting, sorting and per-row actions.
   const cardClassName = hasOpenPopup ? 'transactions-table transactions-table-popup-open' : 'transactions-table'
   const columns: TableColumnsType<TransactionItem> = useMemo(
     () => [
@@ -174,7 +193,6 @@ export function TransactionsTable({
                 aria-label={t('transactions.actions.edit')}
                 onClick={(event) => {
                   event.stopPropagation()
-                  setEditError(null)
                   setEditingTransaction(record)
                   editForm.setFieldsValue({
                     note: record.note,
@@ -210,8 +228,6 @@ export function TransactionsTable({
     setOpenPopup((prev) => ({ ...prev, [key]: isOpen }))
   }
 
-  // Keyboard behavior for the filter bar:
-  // Escape closes open pickers/selects, Enter applies filters.
   function onFiltersKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement
 
@@ -230,18 +246,16 @@ export function TransactionsTable({
   }
 
   function closeEditModal() {
-    setEditError(null)
     setEditingTransaction(null)
     editForm.resetFields()
   }
 
-  // Persist edit form changes for the active transaction.
   async function onEditSubmit(values: EditFormValues) {
     if (!editingTransaction) {
       return
     }
 
-    setEditError(null)
+    closeEditModal()
 
     try {
       await onUpdateTransaction(editingTransaction.id, {
@@ -252,15 +266,14 @@ export function TransactionsTable({
         note: values.note.trim(),
         merchant: values.merchant?.trim() ? values.merchant.trim() : null,
       })
-      closeEditModal()
     } catch (error) {
-      setEditError(error instanceof Error ? error.message : t('errors.transactionUpdate'))
+      messageApi.error(error instanceof Error ? error.message : t('errors.transactionUpdate'))
     }
   }
 
   return (
     <Card className={cardClassName} title={cardTitle} variant="borderless">
-      {/* Filter controls */}
+      {messageContextHolder}
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input
@@ -344,7 +357,6 @@ export function TransactionsTable({
         </Space>
       </div>
 
-      {/* Data table with row selection and inline row actions */}
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}
@@ -373,7 +385,6 @@ export function TransactionsTable({
         }
       />
 
-      {/* Edit transaction modal */}
       <Modal
         open={editingTransaction !== null}
         wrapClassName="transactions-edit-modal"
@@ -388,13 +399,16 @@ export function TransactionsTable({
         confirmLoading={isUpdatingTransaction}
         maskClosable={!isUpdatingTransaction}
       >
-        {editError && <Alert className="transactions-edit-error" type="error" showIcon message={editError} />}
-        <Form<EditFormValues> form={editForm} layout="vertical" onFinish={(values) => void onEditSubmit(values)}>
+        <Form<EditFormValues>
+          form={editForm}
+          layout="vertical"
+          onFinish={(values) => void onEditSubmit(values)}
+        >
           <Form.Item name="note" label={t('transactions.columns.note')} rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item name="accountId" label={t('transactions.columns.account')} rules={[{ required: true }]}>
-            <Select options={accounts.map((account) => ({ value: account.id, label: account.name }))} />
+            <Select options={accountOptions} />
           </Form.Item>
           <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
             <Select options={categories.map((category) => ({ value: category.id, label: category.name }))} />
