@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   Card,
   DatePicker,
@@ -17,7 +16,7 @@ import {
 import type { TableColumnsType } from 'antd'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
@@ -113,7 +112,6 @@ export function TransactionsTable({
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
   const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
   const [deletingTransaction, setDeletingTransaction] = useState<TransactionItem | null>(null)
-  const [deleteSuccessMessage, setDeleteSuccessMessage] = useState<string | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const dateInputFormat = locale === 'de-DE' ? 'DD.MM.YYYY' : 'MM/DD/YYYY'
 
@@ -299,39 +297,15 @@ export function TransactionsTable({
 
     try {
       await onDeleteTransaction(transactionId)
-      setDeleteSuccessMessage(t('transactions.delete.success'))
+      messageApi.success(t('transactions.delete.success'))
     } catch (error) {
       messageApi.error(error instanceof Error ? error.message : t('errors.transactionDelete'))
     }
   }
 
-  useEffect(() => {
-    if (!deleteSuccessMessage) {
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setDeleteSuccessMessage(null)
-    }, 5000)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [deleteSuccessMessage])
-
   return (
     <Card className={cardClassName} title={cardTitle} variant="borderless">
       {messageContextHolder}
-      {deleteSuccessMessage && (
-        <Alert
-          type="success"
-          showIcon
-          closable
-          className="transactions-success-alert"
-          message={deleteSuccessMessage}
-          onClose={() => setDeleteSuccessMessage(null)}
-        />
-      )}
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
           <Input

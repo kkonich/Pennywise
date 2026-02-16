@@ -1,10 +1,12 @@
-import { Alert } from 'antd'
+import { message } from 'antd'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TransactionsTable } from '../components/TransactionsTable'
 import { useTransactionsTableData } from '../hooks/useTransactionsTableData'
 
 export function TransactionsPage() {
   const { t } = useTranslation()
+  const [messageApi, messageContextHolder] = message.useMessage()
   const {
     items,
     isLoading,
@@ -25,17 +27,17 @@ export function TransactionsPage() {
     isDeletingTransaction,
   } = useTransactionsTableData()
 
+  useEffect(() => {
+    if (!error) {
+      return
+    }
+
+    messageApi.error(`${t('errors.transactionsLoad')} ${error}`)
+  }, [error, messageApi, t])
+
   return (
     <>
-      {error && (
-        <Alert
-          type="error"
-          showIcon
-          className="transactions-error-alert"
-          message={t('errors.transactionsLoad')}
-          description={error}
-        />
-      )}
+      {messageContextHolder}
       <TransactionsTable
         items={items}
         isLoading={isLoading}

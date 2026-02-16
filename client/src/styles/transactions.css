@@ -11,27 +11,6 @@
   margin-bottom: 14px;
 }
 
-.transactions-error-alert.ant-alert {
-  margin-bottom: 12px;
-}
-
-.transactions-error-alert.ant-alert-error {
-  background: var(--color-alert-error-bg);
-  border-color: var(--color-alert-error-border);
-}
-
-.transactions-error-alert .ant-alert-message {
-  color: var(--color-text-primary);
-}
-
-.transactions-error-alert .ant-alert-description {
-  color: var(--color-text-secondary);
-}
-
-.transactions-error-alert .ant-alert-icon {
-  color: var(--color-alert-error-icon);
-}
-
 .transactions-filters :is(.ant-input, .ant-input-affix-wrapper, .ant-select, .ant-picker, .ant-input-number) {
   width: 170px;
 }
@@ -83,24 +62,6 @@
 
 .transactions-edit-error {
   margin-bottom: 12px;
-}
-
-.transactions-success-alert.ant-alert {
-  margin-bottom: 12px;
-}
-
-.transactions-success-alert.ant-alert-success {
-  background: var(--color-alert-success-bg);
-  border-color: var(--color-alert-success-border);
-}
-
-.transactions-success-alert .ant-alert-message {
-  color: var(--color-text-primary);
-}
-
-.transactions-success-alert .ant-alert-icon,
-.transactions-success-alert .ant-alert-close-icon {
-  color: var(--color-alert-success-icon);
 }
 
 .transactions-edit-modal .ant-form-item-required::before {
