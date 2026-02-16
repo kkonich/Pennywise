@@ -250,6 +250,7 @@ export function TransactionsTable({
       <Table<TransactionItem>
         rowKey="id"
         columns={columns}
+        showSorterTooltip={{ target: 'sorter-icon', mouseEnterDelay: 0.5 }}
         dataSource={items}
         loading={isLoading}
         pagination={false}
