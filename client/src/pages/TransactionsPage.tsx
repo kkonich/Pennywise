@@ -27,9 +27,9 @@ export function TransactionsPage() {
         <Alert
           type="error"
           showIcon
+          className="transactions-error-alert"
           message={t('errors.transactionsLoad')}
           description={error}
-          style={{ marginBottom: 12 }}
         />
       )}
       <TransactionsTable

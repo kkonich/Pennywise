@@ -30,6 +30,9 @@ export const designTokens = {
   colorAmount: '#f4e2d7',
   colorPositive: '#239e33',
   colorNegative: '#d33852',
+  colorAlertErrorBg: 'rgba(211, 56, 82, 0.16)',
+  colorAlertErrorBorder: 'rgba(211, 56, 82, 0.42)',
+  colorAlertErrorIcon: '#ff788d',
 
   radiusControl: '10px',
   radiusCard: '12px',
@@ -73,6 +76,9 @@ const cssVariables: Record<string, string> = {
   '--color-transaction-amount': designTokens.colorAmount,
   '--color-transaction-amount-positive': designTokens.colorPositive,
   '--color-transaction-amount-negative': designTokens.colorNegative,
+  '--color-alert-error-bg': designTokens.colorAlertErrorBg,
+  '--color-alert-error-border': designTokens.colorAlertErrorBorder,
+  '--color-alert-error-icon': designTokens.colorAlertErrorIcon,
   '--radius-control': designTokens.radiusControl,
   '--radius-card': designTokens.radiusCard,
 }
