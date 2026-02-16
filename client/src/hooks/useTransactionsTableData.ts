@@ -56,6 +56,9 @@ const emptyDraftFilters: TransactionFilterDraft = {
   maxAmount: undefined,
   searchTerm: undefined,
 }
+const emptyAccounts: AccountDto[] = []
+const emptyCategories: CategoryDto[] = []
+const emptyTransactionItems: TransactionDto[] = []
 
 type TransactionsSnapshot = Array<[readonly unknown[], TransactionPageDto | undefined]>
 
@@ -246,9 +249,9 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     },
   })
 
-  const accounts = accountsQuery.data ?? []
-  const categories = categoriesQuery.data ?? []
-  const rawItems = transactionsQuery.data?.items ?? []
+  const accounts = accountsQuery.data ?? emptyAccounts
+  const categories = categoriesQuery.data ?? emptyCategories
+  const rawItems = transactionsQuery.data?.items ?? emptyTransactionItems
 
   const accountsById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts])
   const categoriesById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories])

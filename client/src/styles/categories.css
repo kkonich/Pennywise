@@ -1,0 +1,50 @@
+/* Categories page styles (scoped) */
+.categories-table {
+  border-radius: 12px;
+}
+
+.categories-table .ant-card-body {
+  padding-top: 10px;
+}
+
+.categories-filters {
+  margin-bottom: 14px;
+}
+
+.categories-filters :is(.ant-input, .ant-input-affix-wrapper) {
+  width: 220px;
+}
+
+.categories-table .ant-table-tbody > tr > td {
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+.categories-table .ant-table-tbody > tr.categories-row-selected > td {
+  background: var(--color-surface-elevated) !important;
+  color: var(--color-selected-text);
+}
+
+.categories-table .ant-table-tbody > tr.categories-row-selected:hover > td {
+  background: var(--color-surface-elevated) !important;
+}
+
+.categories-table .ant-table-thead > tr > th {
+  user-select: none;
+}
+
+.categories-table .categories-row-actions {
+  visibility: hidden;
+}
+
+.categories-table .categories-row-actions.is-visible {
+  visibility: visible;
+}
+
+.categories-table .category-finance {
+  color: var(--color-transaction-amount-negative);
+}
+
+.categories-edit-modal .ant-form-item-required::before {
+  color: var(--color-required-mark) !important;
+}

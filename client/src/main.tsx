@@ -14,6 +14,7 @@ import './i18n'
 import App from './App.tsx'
 import { DEFAULT_ROUTE } from './navigation/navConfig'
 import { AccountsPage } from './pages/AccountsPage'
+import { CategoriesPage } from './pages/CategoriesPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { antdDarkTheme } from './theme/antdDarkTheme'
 import { applyDesignTokens } from './theme/designTokensDark.ts'
@@ -48,7 +49,7 @@ export function AppProviders() {
               <Route index element={<Navigate to={DEFAULT_ROUTE} replace />} />
               <Route path="dashboard" element={<></>} />
               <Route path="accounts" element={<AccountsPage />} />
-              <Route path="categories" element={<></>} />
+              <Route path="categories" element={<CategoriesPage />} />
               <Route path="transactions" element={<TransactionsPage />} />
               <Route path="settings" element={<></>} />
               <Route path="*" element={<Navigate to={DEFAULT_ROUTE} replace />} />

@@ -495,9 +495,9 @@ export function TransactionsTable({
           void editForm.submit()
         }}
         onCancel={closeEditModal}
-        destroyOnClose
+        destroyOnHidden
         confirmLoading={isUpdatingTransaction}
-        maskClosable={!isUpdatingTransaction}
+        mask={{ closable: !isUpdatingTransaction }}
       >
         <Form<TransactionFormValues>
           form={editForm}
@@ -536,7 +536,7 @@ export function TransactionsTable({
         }}
         onCancel={closeDeleteModal}
         confirmLoading={isDeletingTransaction}
-        maskClosable={!isDeletingTransaction}
+        mask={{ closable: !isDeletingTransaction }}
       >
         {deletingTransaction && (
           <Typography.Paragraph style={{ marginBottom: 0 }}>
@@ -559,9 +559,9 @@ export function TransactionsTable({
           void createForm.submit()
         }}
         onCancel={closeCreateModal}
-        destroyOnClose
+        destroyOnHidden
         confirmLoading={isCreatingTransaction}
-        maskClosable={!isCreatingTransaction}
+        mask={{ closable: !isCreatingTransaction }}
       >
         <Form<TransactionFormValues>
           form={createForm}

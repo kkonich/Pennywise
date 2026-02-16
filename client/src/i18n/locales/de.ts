@@ -8,6 +8,10 @@ const de = {
       accountCreate: 'Konto konnte nicht erstellt werden.',
       accountUpdate: 'Konto konnte nicht gespeichert werden.',
       accountDelete: 'Konto konnte nicht gelöscht werden.',
+      categoriesLoad: 'Kategorien konnten nicht geladen werden.',
+      categoryCreate: 'Kategorie konnte nicht erstellt werden.',
+      categoryUpdate: 'Kategorie konnte nicht gespeichert werden.',
+      categoryDelete: 'Kategorie konnte nicht gelöscht werden.',
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
       transactionCreate: 'Transaktion konnte nicht erstellt werden.',
       transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
@@ -69,6 +73,49 @@ const de = {
       },
       validation: {
         balanceRequired: 'Kontostand ist erforderlich.',
+      },
+    },
+    categories: {
+      title: 'Kategorien',
+      empty: 'Keine Kategorien vorhanden.',
+      columns: {
+        name: 'Name',
+        finances: 'Finanzen',
+      },
+      actions: {
+        edit: 'Kategorie bearbeiten',
+        delete: 'Kategorie löschen',
+      },
+      edit: {
+        title: 'Kategorie bearbeiten',
+        save: 'Speichern',
+        cancel: 'Abbrechen',
+        success: 'Kategorie wurde erfolgreich gespeichert.',
+      },
+      create: {
+        open: 'Kategorie hinzufügen',
+        title: 'Kategorie hinzufügen',
+        save: 'Erstellen',
+        cancel: 'Abbrechen',
+        success: 'Kategorie wurde erfolgreich erstellt.',
+      },
+      delete: {
+        confirmTitle: 'Kategorie löschen?',
+        confirmDescription: 'Möchtest du diese Kategorie wirklich löschen?',
+        confirm: 'Löschen',
+        cancel: 'Abbrechen',
+        success: 'Kategorie wurde erfolgreich gelöscht.',
+      },
+      filters: {
+        search: 'Nach Name suchen',
+        apply: 'Anwenden',
+        reset: 'Zurücksetzen',
+      },
+      pagination: {
+        rangeOfTotal: '{{start}}-{{end}} von {{total}}',
+      },
+      validation: {
+        nameRequired: 'Name ist erforderlich.',
       },
     },
     transactions: {

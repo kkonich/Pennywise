@@ -8,6 +8,10 @@ const en = {
       accountCreate: 'Account could not be created.',
       accountUpdate: 'Account could not be saved.',
       accountDelete: 'Account could not be deleted.',
+      categoriesLoad: 'Categories could not be loaded.',
+      categoryCreate: 'Category could not be created.',
+      categoryUpdate: 'Category could not be saved.',
+      categoryDelete: 'Category could not be deleted.',
       transactionsLoad: 'Transactions could not be loaded.',
       transactionCreate: 'Transaction could not be created.',
       transactionUpdate: 'Transaction could not be saved.',
@@ -68,6 +72,49 @@ const en = {
       },
       validation: {
         balanceRequired: 'Balance is required.',
+      },
+    },
+    categories: {
+      title: 'Categories',
+      empty: 'No categories available.',
+      columns: {
+        name: 'Name',
+        finances: 'Finances',
+      },
+      actions: {
+        edit: 'Edit category',
+        delete: 'Delete category',
+      },
+      edit: {
+        title: 'Edit category',
+        save: 'Save',
+        cancel: 'Cancel',
+        success: 'Category saved successfully.',
+      },
+      create: {
+        open: 'Add category',
+        title: 'Add category',
+        save: 'Create',
+        cancel: 'Cancel',
+        success: 'Category created successfully.',
+      },
+      delete: {
+        confirmTitle: 'Delete category?',
+        confirmDescription: 'Do you really want to delete this category?',
+        confirm: 'Delete',
+        cancel: 'Cancel',
+        success: 'Category deleted successfully.',
+      },
+      filters: {
+        search: 'Search by name',
+        apply: 'Apply',
+        reset: 'Reset',
+      },
+      pagination: {
+        rangeOfTotal: '{{start}}-{{end}} of {{total}}',
+      },
+      validation: {
+        nameRequired: 'Name is required.',
       },
     },
     transactions: {

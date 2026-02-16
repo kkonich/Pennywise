@@ -402,9 +402,9 @@ export function AccountsTable({
           void editForm.submit()
         }}
         onCancel={closeEditModal}
-        destroyOnClose
+        destroyOnHidden
         confirmLoading={isUpdatingAccount}
-        maskClosable={!isUpdatingAccount}
+        mask={{ closable: !isUpdatingAccount }}
       >
         <Form<AccountFormValues>
           form={editForm}
@@ -438,7 +438,7 @@ export function AccountsTable({
         }}
         onCancel={closeDeleteModal}
         confirmLoading={isDeletingAccount}
-        maskClosable={!isDeletingAccount}
+        mask={{ closable: !isDeletingAccount }}
       >
         {deletingAccount && (
           <>
@@ -461,9 +461,9 @@ export function AccountsTable({
           void createForm.submit()
         }}
         onCancel={closeCreateModal}
-        destroyOnClose
+        destroyOnHidden
         confirmLoading={isCreatingAccount}
-        maskClosable={!isCreatingAccount}
+        mask={{ closable: !isCreatingAccount }}
       >
         <Form<AccountFormValues>
           form={createForm}
