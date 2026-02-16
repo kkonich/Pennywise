@@ -14,14 +14,14 @@ import {
   message,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionUpdateRequest } from '../types/transaction'
+import type { TransactionCreateRequest, TransactionUpdateRequest } from '../types/transaction'
 
 export type TransactionItem = {
   id: string
@@ -51,8 +51,10 @@ type TransactionsTableProps = {
   onApplyFilters: () => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
+  onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
   onDeleteTransaction: (id: string) => Promise<void>
+  isCreatingTransaction?: boolean
   isUpdatingTransaction?: boolean
   isDeletingTransaction?: boolean
 }
@@ -77,7 +79,7 @@ function formatCurrency(value: number, locale: string, currencyCode = 'EUR'): st
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(value)
 }
 
-type EditFormValues = {
+type TransactionFormValues = {
   note: string
   accountId: string
   categoryId: string
@@ -100,16 +102,20 @@ export function TransactionsTable({
   onApplyFilters,
   onResetFilters,
   onPageChange,
+  onCreateTransaction,
   onUpdateTransaction,
   onDeleteTransaction,
+  isCreatingTransaction = false,
   isUpdatingTransaction = false,
   isDeletingTransaction = false,
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
-  const [editForm] = Form.useForm<EditFormValues>()
+  const [createForm] = Form.useForm<TransactionFormValues>()
+  const [editForm] = Form.useForm<TransactionFormValues>()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
   const [deletingTransaction, setDeletingTransaction] = useState<TransactionItem | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
@@ -125,6 +131,18 @@ export function TransactionsTable({
     [accounts],
   )
   const cardTitle = title ?? t('transactions.titleLatest')
+  const amountRules = useMemo(
+    () => [
+      { required: true },
+      {
+        validator: (_: unknown, value?: number) =>
+          typeof value === 'number' && value !== 0
+            ? Promise.resolve()
+            : Promise.reject(new Error(t('transactions.validation.amountNonZero'))),
+      },
+    ],
+    [t],
+  )
 
   const cardClassName = hasOpenPopup ? 'transactions-table transactions-table-popup-open' : 'transactions-table'
   const columns: TableColumnsType<TransactionItem> = useMemo(
@@ -258,7 +276,48 @@ export function TransactionsTable({
     editForm.resetFields()
   }
 
-  async function onEditSubmit(values: EditFormValues) {
+  function openCreateModal() {
+    const initialAccountId = accounts[0]?.id
+    const initialCategoryId = categories[0]?.id
+
+    createForm.setFieldsValue({
+      note: '',
+      accountId: initialAccountId,
+      categoryId: initialCategoryId,
+      bookedOn: dayjs(),
+      merchant: undefined,
+    })
+    setIsCreateModalOpen(true)
+  }
+
+  function closeCreateModal() {
+    if (isCreatingTransaction) {
+      return
+    }
+
+    setIsCreateModalOpen(false)
+    createForm.resetFields()
+  }
+
+  async function onCreateSubmit(values: TransactionFormValues) {
+    try {
+      await onCreateTransaction({
+        accountId: values.accountId,
+        categoryId: values.categoryId,
+        bookedOn: values.bookedOn.format('YYYY-MM-DD'),
+        amount: values.amount,
+        note: values.note.trim(),
+        merchant: values.merchant?.trim() ? values.merchant.trim() : null,
+      })
+      setIsCreateModalOpen(false)
+      createForm.resetFields()
+      messageApi.success(t('transactions.create.success'))
+    } catch (error) {
+      messageApi.error(error instanceof Error ? error.message : t('errors.transactionCreate'))
+    }
+  }
+
+  async function onEditSubmit(values: TransactionFormValues) {
     if (!editingTransaction) {
       return
     }
@@ -304,7 +363,16 @@ export function TransactionsTable({
   }
 
   return (
-    <Card className={cardClassName} title={cardTitle} variant="borderless">
+    <Card
+      className={cardClassName}
+      title={cardTitle}
+      variant="borderless"
+      extra={
+        <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingTransaction}>
+          {t('transactions.create.open')}
+        </Button>
+      }
+    >
       {messageContextHolder}
       <div className="transactions-filters" onKeyDown={onFiltersKeyDown}>
         <Space wrap size={[8, 8]}>
@@ -431,7 +499,7 @@ export function TransactionsTable({
         confirmLoading={isUpdatingTransaction}
         maskClosable={!isUpdatingTransaction}
       >
-        <Form<EditFormValues>
+        <Form<TransactionFormValues>
           form={editForm}
           layout="vertical"
           onFinish={(values) => void onEditSubmit(values)}
@@ -448,7 +516,7 @@ export function TransactionsTable({
           <Form.Item name="bookedOn" label={t('transactions.columns.bookedOn')} rules={[{ required: true }]}>
             <DatePicker format={dateInputFormat} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="amount" label={t('transactions.columns.amount')} rules={[{ required: true }]}>
+          <Form.Item name="amount" label={t('transactions.columns.amount')} rules={amountRules}>
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item name="merchant" label={t('transactions.columns.merchant')}>
@@ -479,6 +547,46 @@ export function TransactionsTable({
             )
           </Typography.Paragraph>
         )}
+      </Modal>
+
+      <Modal
+        open={isCreateModalOpen}
+        wrapClassName="transactions-edit-modal"
+        title={t('transactions.create.title')}
+        okText={t('transactions.create.save')}
+        cancelText={t('transactions.create.cancel')}
+        onOk={() => {
+          void createForm.submit()
+        }}
+        onCancel={closeCreateModal}
+        destroyOnClose
+        confirmLoading={isCreatingTransaction}
+        maskClosable={!isCreatingTransaction}
+      >
+        <Form<TransactionFormValues>
+          form={createForm}
+          layout="vertical"
+          onFinish={(values) => void onCreateSubmit(values)}
+        >
+          <Form.Item name="note" label={t('transactions.columns.note')} rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="accountId" label={t('transactions.columns.account')} rules={[{ required: true }]}>
+            <Select options={accountOptions} />
+          </Form.Item>
+          <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
+            <Select options={categories.map((category) => ({ value: category.id, label: category.name }))} />
+          </Form.Item>
+          <Form.Item name="bookedOn" label={t('transactions.columns.bookedOn')} rules={[{ required: true }]}>
+            <DatePicker format={dateInputFormat} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="amount" label={t('transactions.columns.amount')} rules={amountRules}>
+            <InputNumber style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="merchant" label={t('transactions.columns.merchant')}>
+            <Input />
+          </Form.Item>
+        </Form>
       </Modal>
     </Card>
   )

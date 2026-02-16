@@ -34,3 +34,5 @@ export type TransactionUpdateRequest = {
   note: string
   merchant: string | null
 }
+
+export type TransactionCreateRequest = TransactionUpdateRequest

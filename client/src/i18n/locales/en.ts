@@ -5,6 +5,7 @@ const en = {
     },
     errors: {
       transactionsLoad: 'Transactions could not be loaded.',
+      transactionCreate: 'Transaction could not be created.',
       transactionUpdate: 'Transaction could not be saved.',
       transactionDelete: 'Transaction could not be deleted.',
     },
@@ -42,6 +43,13 @@ const en = {
         save: 'Save',
         cancel: 'Cancel',
       },
+      create: {
+        open: 'Add transaction',
+        title: 'Add transaction',
+        save: 'Create',
+        cancel: 'Cancel',
+        success: 'Transaction created successfully.',
+      },
       delete: {
         confirmTitle: 'Delete transaction?',
         confirmDescription: 'Do you really want to delete this transaction?',
@@ -62,6 +70,9 @@ const en = {
       },
       pagination: {
         rangeOfTotal: '{{start}}-{{end}} of {{total}}',
+      },
+      validation: {
+        amountNonZero: 'Amount must not be zero.',
       },
     },
   },

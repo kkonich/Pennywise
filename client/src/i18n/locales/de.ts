@@ -5,6 +5,7 @@ const de = {
     },
     errors: {
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
+      transactionCreate: 'Transaktion konnte nicht erstellt werden.',
       transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
       transactionDelete: 'Transaktion konnte nicht gelöscht werden.',
     },
@@ -42,6 +43,13 @@ const de = {
         save: 'Speichern',
         cancel: 'Abbrechen',
       },
+      create: {
+        open: 'Transaktion hinzufügen',
+        title: 'Transaktion hinzufügen',
+        save: 'Erstellen',
+        cancel: 'Abbrechen',
+        success: 'Transaktion wurde erfolgreich erstellt.',
+      },
       delete: {
         confirmTitle: 'Transaktion löschen?',
         confirmDescription: 'Möchtest du diese Transaktion wirklich löschen?',
@@ -62,6 +70,9 @@ const de = {
       },
       pagination: {
         rangeOfTotal: '{{start}}-{{end}} von {{total}}',
+      },
+      validation: {
+        amountNonZero: 'Betrag darf nicht 0 sein.',
       },
     },
   },

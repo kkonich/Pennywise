@@ -21,8 +21,10 @@ export function TransactionsPage() {
     onApplyFilters,
     onResetFilters,
     onPageChange,
+    onCreateTransaction,
     onUpdateTransaction,
     onDeleteTransaction,
+    isCreatingTransaction,
     isUpdatingTransaction,
     isDeletingTransaction,
   } = useTransactionsTableData()
@@ -51,8 +53,10 @@ export function TransactionsPage() {
         onApplyFilters={onApplyFilters}
         onResetFilters={onResetFilters}
         onPageChange={onPageChange}
+        onCreateTransaction={onCreateTransaction}
         onUpdateTransaction={onUpdateTransaction}
         onDeleteTransaction={onDeleteTransaction}
+        isCreatingTransaction={isCreatingTransaction}
         isUpdatingTransaction={isUpdatingTransaction}
         isDeletingTransaction={isDeletingTransaction}
       />

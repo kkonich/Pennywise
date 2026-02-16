@@ -1,5 +1,11 @@
-import { deleteJson, getJson, putJson } from './http'
-import type { TransactionDto, TransactionFilters, TransactionPageDto, TransactionUpdateRequest } from '../types/transaction'
+import { deleteJson, getJson, postJson, putJson } from './http'
+import type {
+  TransactionCreateRequest,
+  TransactionDto,
+  TransactionFilters,
+  TransactionPageDto,
+  TransactionUpdateRequest,
+} from '../types/transaction'
 
 type FetchTransactionsPageParams = {
   page: number
@@ -49,6 +55,10 @@ export function fetchTransactionsPage(params: FetchTransactionsPageParams): Prom
 
 export function updateTransaction(id: string, request: TransactionUpdateRequest): Promise<void> {
   return putJson(`/api/transactions/${id}`, { body: request })
+}
+
+export function createTransaction(request: TransactionCreateRequest): Promise<TransactionDto> {
+  return postJson<TransactionDto>('/api/transactions', { body: request })
 }
 
 export function deleteTransaction(id: string): Promise<void> {

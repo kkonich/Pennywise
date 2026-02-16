@@ -3,11 +3,17 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
-import { deleteTransaction, fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
+import { createTransaction, deleteTransaction, fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionDto, TransactionFilters, TransactionPageDto, TransactionUpdateRequest } from '../types/transaction'
+import type {
+  TransactionCreateRequest,
+  TransactionDto,
+  TransactionFilters,
+  TransactionPageDto,
+  TransactionUpdateRequest,
+} from '../types/transaction'
 
 export type TransactionFilterDraft = {
   accountId?: string
@@ -33,8 +39,10 @@ type UseTransactionsTableDataResult = {
   onApplyFilters: () => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
+  onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
   onDeleteTransaction: (id: string) => Promise<void>
+  isCreatingTransaction: boolean
   isUpdatingTransaction: boolean
   isDeletingTransaction: boolean
 }
@@ -183,6 +191,16 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     },
   })
 
+  const createMutation = useMutation({
+    mutationFn: (request: TransactionCreateRequest) => createTransaction(request),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchType: 'active',
+      })
+    },
+  })
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTransaction(id),
     onMutate: async (id) => {
@@ -295,6 +313,11 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     await updateMutation.mutateAsync({ id, request })
   }
 
+  async function onCreateTransaction(request: TransactionCreateRequest) {
+    await createMutation.mutateAsync(request)
+    setPage(1)
+  }
+
   async function onDeleteTransaction(id: string) {
     await deleteMutation.mutateAsync(id)
   }
@@ -313,8 +336,10 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onApplyFilters,
     onResetFilters,
     onPageChange,
+    onCreateTransaction,
     onUpdateTransaction,
     onDeleteTransaction,
+    isCreatingTransaction: createMutation.isPending,
     isUpdatingTransaction: updateMutation.isPending,
     isDeletingTransaction: deleteMutation.isPending,
   }
