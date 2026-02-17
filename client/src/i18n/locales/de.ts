@@ -7,16 +7,16 @@ const de = {
       accountsLoad: 'Konten konnten nicht geladen werden.',
       accountCreate: 'Konto konnte nicht erstellt werden.',
       accountUpdate: 'Konto konnte nicht gespeichert werden.',
-      accountDelete: 'Konto konnte nicht gelöscht werden.',
+      accountDelete: 'Konto konnte nicht archiviert werden.',
       settingsLoad: 'Einstellungen konnten nicht geladen werden.',
       categoriesLoad: 'Kategorien konnten nicht geladen werden.',
       categoryCreate: 'Kategorie konnte nicht erstellt werden.',
       categoryUpdate: 'Kategorie konnte nicht gespeichert werden.',
-      categoryDelete: 'Kategorie konnte nicht gelöscht werden.',
+      categoryDelete: 'Kategorie konnte nicht archiviert werden.',
       transactionsLoad: 'Transaktionen konnten nicht geladen werden.',
       transactionCreate: 'Transaktion konnte nicht erstellt werden.',
       transactionUpdate: 'Transaktion konnte nicht gespeichert werden.',
-      transactionDelete: 'Transaktion konnte nicht gelöscht werden.',
+      transactionDelete: 'Transaktion konnte nicht archiviert werden.',
     },
     brand: {
       logoAlt: 'Pennywise',
@@ -38,7 +38,7 @@ const de = {
       },
       actions: {
         edit: 'Konto bearbeiten',
-        delete: 'Konto löschen',
+        delete: 'Konto archivieren',
       },
       edit: {
         title: 'Konto bearbeiten',
@@ -54,13 +54,13 @@ const de = {
         success: 'Konto wurde erfolgreich erstellt.',
       },
       delete: {
-        confirmTitle: 'Konto löschen?',
-        confirmDescription: 'Möchtest du dieses Konto wirklich löschen?',
+        confirmTitle: 'Konto archivieren?',
+        confirmDescription: 'Möchtest du dieses Konto wirklich archivieren?',
         cascadeWarning:
-          'Beim Löschen eines Kontos werden auch alle damit verbundenen Transaktionen gelöscht!',
-        confirm: 'Löschen',
+          'Beim Archivieren eines Kontos werden auch alle damit verbundenen Transaktionen archiviert!',
+        confirm: 'Archivieren',
         cancel: 'Abbrechen',
-        success: 'Konto wurde erfolgreich gelöscht.',
+        success: 'Konto wurde erfolgreich archiviert.',
       },
       filters: {
         search: 'Nach Name suchen',
@@ -83,7 +83,7 @@ const de = {
       },
       actions: {
         edit: 'Kategorie bearbeiten',
-        delete: 'Kategorie löschen',
+        delete: 'Kategorie archivieren',
       },
       edit: {
         title: 'Kategorie bearbeiten',
@@ -99,11 +99,11 @@ const de = {
         success: 'Kategorie wurde erfolgreich erstellt.',
       },
       delete: {
-        confirmTitle: 'Kategorie löschen?',
-        confirmDescription: 'Möchtest du diese Kategorie wirklich löschen?',
-        confirm: 'Löschen',
+        confirmTitle: 'Kategorie archivieren?',
+        confirmDescription: 'Möchtest du diese Kategorie wirklich archivieren?',
+        confirm: 'Archivieren',
         cancel: 'Abbrechen',
-        success: 'Kategorie wurde erfolgreich gelöscht.',
+        success: 'Kategorie wurde erfolgreich archiviert.',
       },
       filters: {
         search: 'Nach Name suchen',
@@ -135,7 +135,7 @@ const de = {
       },
       actions: {
         edit: 'Transaktion bearbeiten',
-        delete: 'Transaktion löschen',
+        delete: 'Transaktion archivieren',
       },
       edit: {
         title: 'Transaktion bearbeiten',
@@ -150,11 +150,11 @@ const de = {
         success: 'Transaktion wurde erfolgreich erstellt.',
       },
       delete: {
-        confirmTitle: 'Transaktion löschen?',
-        confirmDescription: 'Möchtest du diese Transaktion wirklich löschen?',
-        confirm: 'Löschen',
+        confirmTitle: 'Transaktion archivieren?',
+        confirmDescription: 'Möchtest du diese Transaktion wirklich archivieren?',
+        confirm: 'Archivieren',
         cancel: 'Abbrechen',
-        success: 'Transaktion wurde erfolgreich gelöscht.',
+        success: 'Transaktion wurde erfolgreich archiviert.',
       },
       filters: {
         note: 'Beschreibung',

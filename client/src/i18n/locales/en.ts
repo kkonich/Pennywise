@@ -7,16 +7,16 @@ const en = {
       accountsLoad: 'Accounts could not be loaded.',
       accountCreate: 'Account could not be created.',
       accountUpdate: 'Account could not be saved.',
-      accountDelete: 'Account could not be deleted.',
+      accountDelete: 'Account could not be archived.',
       settingsLoad: 'Settings could not be loaded.',
       categoriesLoad: 'Categories could not be loaded.',
       categoryCreate: 'Category could not be created.',
       categoryUpdate: 'Category could not be saved.',
-      categoryDelete: 'Category could not be deleted.',
+      categoryDelete: 'Category could not be archived.',
       transactionsLoad: 'Transactions could not be loaded.',
       transactionCreate: 'Transaction could not be created.',
       transactionUpdate: 'Transaction could not be saved.',
-      transactionDelete: 'Transaction could not be deleted.',
+      transactionDelete: 'Transaction could not be archived.',
     },
     brand: {
       logoAlt: 'Pennywise',
@@ -39,7 +39,7 @@ const en = {
       },
       actions: {
         edit: 'Edit account',
-        delete: 'Delete account',
+        delete: 'Archive account',
       },
       edit: {
         title: 'Edit account',
@@ -55,12 +55,12 @@ const en = {
         success: 'Account created successfully.',
       },
       delete: {
-        confirmTitle: 'Delete account?',
-        confirmDescription: 'Do you really want to delete this account?',
-        cascadeWarning: 'Deleting an account will also delete all related transactions!',
-        confirm: 'Delete',
+        confirmTitle: 'Archive account?',
+        confirmDescription: 'Do you really want to archive this account?',
+        cascadeWarning: 'Archiving an account will also archive all related transactions!',
+        confirm: 'Archive',
         cancel: 'Cancel',
-        success: 'Account deleted successfully.',
+        success: 'Account archived successfully.',
       },
       filters: {
         search: 'Search by name',
@@ -83,7 +83,7 @@ const en = {
       },
       actions: {
         edit: 'Edit category',
-        delete: 'Delete category',
+        delete: 'Archive category',
       },
       edit: {
         title: 'Edit category',
@@ -99,11 +99,11 @@ const en = {
         success: 'Category created successfully.',
       },
       delete: {
-        confirmTitle: 'Delete category?',
-        confirmDescription: 'Do you really want to delete this category?',
-        confirm: 'Delete',
+        confirmTitle: 'Archive category?',
+        confirmDescription: 'Do you really want to archive this category?',
+        confirm: 'Archive',
         cancel: 'Cancel',
-        success: 'Category deleted successfully.',
+        success: 'Category archived successfully.',
       },
       filters: {
         search: 'Search by name',
@@ -135,7 +135,7 @@ const en = {
       },
       actions: {
         edit: 'Edit transaction',
-        delete: 'Delete transaction',
+        delete: 'Archive transaction',
       },
       edit: {
         title: 'Edit transaction',
@@ -150,11 +150,11 @@ const en = {
         success: 'Transaction created successfully.',
       },
       delete: {
-        confirmTitle: 'Delete transaction?',
-        confirmDescription: 'Do you really want to delete this transaction?',
-        confirm: 'Delete',
+        confirmTitle: 'Archive transaction?',
+        confirmDescription: 'Do you really want to archive this transaction?',
+        confirm: 'Archive',
         cancel: 'Cancel',
-        success: 'Transaction deleted successfully.',
+        success: 'Transaction archived successfully.',
       },
       filters: {
         note: 'Description',
