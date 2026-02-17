@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Pennywise.Application.Interfaces;
+using Pennywise.Contracts;
 using Pennywise.Contracts.Accounts;
 using Pennywise.Domain.Entities;
 
@@ -85,6 +86,21 @@ public sealed class AccountsController : ControllerBase
         account.Balance = request.Balance;
 
         await _repository.UpdateAsync(account, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Archives multiple accounts and their transactions.
+    /// </summary>
+    [HttpPost("archive")]
+    public async Task<ActionResult> ArchiveMany(ArchiveManyRequest request, CancellationToken cancellationToken)
+    {
+        if (request?.Ids is null || request.Ids.Count == 0)
+        {
+            return BadRequest("At least one account id must be provided.");
+        }
+
+        await _repository.ArchiveManyAsync(request.Ids, cancellationToken);
         return NoContent();
     }
 

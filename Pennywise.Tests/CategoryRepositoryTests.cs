@@ -214,6 +214,80 @@ public sealed class CategoryRepositoryTests : IAsyncLifetime
         Assert.All(movedTransactions, t => Assert.Equal(CategoryDefaults.UncategorizedId, t.CategoryId));
     }
 
+    [Fact(DisplayName = "ArchiveManyAsync archives categories and moves transactions to Uncategorized")]
+    public async Task ArchiveManyAsync_archives_categories_and_moves_transactions()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new CategoryRepository(context);
+
+        var expenseOne = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Utilities",
+            Type = CategoryType.Expense,
+            SortOrder = 1,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var expenseTwo = new Category
+        {
+            Id = Guid.NewGuid(),
+            Name = "Travel",
+            Type = CategoryType.Expense,
+            SortOrder = 2,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await repository.AddAsync(expenseOne);
+        await repository.AddAsync(expenseTwo);
+
+        var accountId = Guid.NewGuid();
+        await context.Accounts.AddAsync(new Account
+        {
+            Id = accountId,
+            Name = "Main",
+            Balance = 0m,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await context.Transactions.AddRangeAsync(
+            new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = accountId,
+                CategoryId = expenseOne.Id,
+                Type = TransactionType.Expense,
+                BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                Amount = 50m,
+                Note = "Electricity",
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = accountId,
+                CategoryId = expenseTwo.Id,
+                Type = TransactionType.Expense,
+                BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                Amount = 120m,
+                Note = "Train tickets",
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+        await context.SaveChangesAsync();
+
+        await repository.ArchiveManyAsync(new[] { expenseOne.Id, expenseTwo.Id });
+
+        var visibleCategories = await repository.GetAllAsync();
+        var archivedCategories = await context.Categories.IgnoreQueryFilters()
+            .Where(c => c.IsArchived)
+            .ToListAsync();
+        var movedTransactions = await context.Transactions.IgnoreQueryFilters().ToListAsync();
+
+        Assert.Single(visibleCategories);
+        Assert.Equal(CategoryDefaults.UncategorizedId, visibleCategories[0].Id);
+        Assert.Equal(2, archivedCategories.Count);
+        Assert.All(movedTransactions, t => Assert.Equal(CategoryDefaults.UncategorizedId, t.CategoryId));
+    }
+
     // Helper function
     private async Task<PennywiseDbContext> CreateNewContextAsync()
     {

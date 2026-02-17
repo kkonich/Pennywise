@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Pennywise.Domain.Entities;
@@ -193,6 +194,81 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
 
         Assert.Equal(0, transactionCountVisible);
         Assert.All(archivedTransactions, t => Assert.True(t.IsArchived));
+    }
+
+    [Fact(DisplayName = "ArchiveManyAsync archives multiple accounts and related transactions")]
+    public async Task ArchiveManyAsync_archives_accounts_and_transactions()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new AccountRepository(context);
+
+        var categoryId = Guid.NewGuid();
+        await context.Categories.AddAsync(new Category
+        {
+            Id = categoryId,
+            Name = "Bills",
+            Type = CategoryType.Expense,
+            SortOrder = 1,
+            CreatedAt = DateTimeOffset.UtcNow,
+            IsArchived = false
+        });
+
+        var accountOne = new Account
+        {
+            Id = Guid.NewGuid(),
+            Name = "Checking",
+            Balance = 500m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        var accountTwo = new Account
+        {
+            Id = Guid.NewGuid(),
+            Name = "Savings",
+            Balance = 200m,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await repository.AddAsync(accountOne);
+        await repository.AddAsync(accountTwo);
+
+        await context.Transactions.AddRangeAsync(
+            new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = accountOne.Id,
+                CategoryId = categoryId,
+                Type = TransactionType.Expense,
+                BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                Amount = 20m,
+                Note = "Subscription",
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = accountTwo.Id,
+                CategoryId = categoryId,
+                Type = TransactionType.Expense,
+                BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+                Amount = 30m,
+                Note = "Fee",
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+        await context.SaveChangesAsync();
+
+        await repository.ArchiveManyAsync(new[] { accountOne.Id, accountTwo.Id });
+
+        var visibleAccounts = await repository.GetAllAsync();
+        var archivedAccounts = await context.Accounts.IgnoreQueryFilters()
+            .Where(a => a.IsArchived)
+            .ToListAsync();
+        var archivedTransactions = await context.Transactions.IgnoreQueryFilters()
+            .Where(t => t.IsArchived)
+            .ToListAsync();
+
+        Assert.Empty(visibleAccounts);
+        Assert.Equal(2, archivedAccounts.Count);
+        Assert.Equal(2, archivedTransactions.Count);
     }
 
     // Helper function

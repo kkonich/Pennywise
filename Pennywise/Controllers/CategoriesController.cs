@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pennywise.Application.Interfaces;
 using Pennywise.Contracts.Categories;
+using Pennywise.Contracts;
 using Pennywise.Domain.Entities;
 
 namespace Pennywise.Controllers;
@@ -89,6 +90,21 @@ public sealed class CategoriesController : ControllerBase
         category.IsArchived = request.IsArchived;
 
         await _repository.UpdateAsync(category, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Archives multiple categories and reassigns their transactions to Uncategorized.
+    /// </summary>
+    [HttpPost("archive")]
+    public async Task<ActionResult> ArchiveMany(ArchiveManyRequest request, CancellationToken cancellationToken)
+    {
+        if (request?.Ids is null || request.Ids.Count == 0)
+        {
+            return BadRequest("At least one category id must be provided.");
+        }
+
+        await _repository.ArchiveManyAsync(request.Ids, cancellationToken);
         return NoContent();
     }
 

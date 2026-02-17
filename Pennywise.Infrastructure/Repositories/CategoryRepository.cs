@@ -43,17 +43,29 @@ public sealed class CategoryRepository : ICategoryRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task ArchiveManyAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
-        if (id == CategoryDefaults.UncategorizedId)
+        if (ids.Count == 0)
         {
             return;
         }
 
-        var category = await _dbContext.Categories
+        var targetIds = ids
+            .Where(id => id != CategoryDefaults.UncategorizedId)
+            .Distinct()
+            .ToArray();
+
+        if (targetIds.Length == 0)
+        {
+            return;
+        }
+
+        var categories = await _dbContext.Categories
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-        if (category is null)
+            .Where(category => targetIds.Contains(category.Id))
+            .ToListAsync(cancellationToken);
+
+        if (categories.Count == 0)
         {
             return;
         }
@@ -62,7 +74,7 @@ public sealed class CategoryRepository : ICategoryRepository
 
         var transactions = await _dbContext.Transactions
             .IgnoreQueryFilters()
-            .Where(t => t.CategoryId == id)
+            .Where(transaction => targetIds.Contains(transaction.CategoryId))
             .ToListAsync(cancellationToken);
 
         foreach (var transaction in transactions)
@@ -70,8 +82,17 @@ public sealed class CategoryRepository : ICategoryRepository
             transaction.CategoryId = uncategorized.Id;
         }
 
-        category.IsArchived = true;
+        foreach (var category in categories)
+        {
+            category.IsArchived = true;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await ArchiveManyAsync(new[] { id }, cancellationToken);
     }
 
     private async Task<Category> EnsureUncategorizedAsync(CancellationToken cancellationToken)

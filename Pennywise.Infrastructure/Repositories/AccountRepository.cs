@@ -42,22 +42,34 @@ public sealed class AccountRepository : IAccountRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task ArchiveManyAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
-        var account = await _dbContext.Accounts
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-        if (account is null)
+        if (ids.Count == 0)
         {
             return;
         }
 
-        account.IsArchived = true;
+        var accounts = await _dbContext.Accounts
+            .IgnoreQueryFilters()
+            .Where(account => ids.Contains(account.Id))
+            .ToListAsync(cancellationToken);
+
+        if (accounts.Count == 0)
+        {
+            return;
+        }
+
+        var accountIds = accounts.Select(account => account.Id).ToArray();
 
         var transactions = await _dbContext.Transactions
             .IgnoreQueryFilters()
-            .Where(t => t.AccountId == id)
+            .Where(transaction => accountIds.Contains(transaction.AccountId))
             .ToListAsync(cancellationToken);
+
+        foreach (var account in accounts)
+        {
+            account.IsArchived = true;
+        }
 
         foreach (var transaction in transactions)
         {
@@ -65,5 +77,10 @@ public sealed class AccountRepository : IAccountRepository
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await ArchiveManyAsync(new[] { id }, cancellationToken);
     }
 }

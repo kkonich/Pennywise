@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Pennywise.Application.Interfaces;
+using Pennywise.Contracts;
 using Pennywise.Contracts.Transactions;
 using Pennywise.Domain.Entities;
 
@@ -202,6 +203,21 @@ public sealed class TransactionsController : ControllerBase
         transaction.Merchant = request.Merchant;
 
         await _repository.UpdateAsync(transaction, cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Archives multiple transactions.
+    /// </summary>
+    [HttpPost("archive")]
+    public async Task<ActionResult> ArchiveMany(ArchiveManyRequest request, CancellationToken cancellationToken)
+    {
+        if (request?.Ids is null || request.Ids.Count == 0)
+        {
+            return BadRequest("At least one transaction id must be provided.");
+        }
+
+        await _repository.ArchiveManyAsync(request.Ids, cancellationToken);
         return NoContent();
     }
 

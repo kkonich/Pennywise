@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Pennywise.Domain.Entities;
@@ -361,6 +362,57 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         Assert.Equal(categoryA.Id, items[0].CategoryId);
         Assert.Equal(49.99m, items[0].Amount);
         Assert.Equal("Supermarket", items[0].Note);
+    }
+
+    [Fact(DisplayName = "ArchiveManyAsync archives multiple transactions")]
+    public async Task ArchiveManyAsync_archives_multiple_transactions()
+    {
+        await using var context = await CreateNewContextAsync();
+        var repository = new TransactionRepository(context);
+
+        var account = await CreateAccountAsync(context);
+        var category = await CreateCategoryAsync(context);
+
+        var first = new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = account.Id,
+            CategoryId = category.Id,
+            Type = TransactionType.Expense,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = 25m,
+            Note = "First",
+            Merchant = "Store",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        var second = new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = account.Id,
+            CategoryId = category.Id,
+            Type = TransactionType.Income,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = 100m,
+            Note = "Second",
+            Merchant = "Employer",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await repository.AddAsync(first);
+        await repository.AddAsync(second);
+
+        await repository.ArchiveManyAsync(new[] { first.Id, second.Id });
+
+        var (items, totalCount) = await repository.GetPagedAsync(page: 1, pageSize: 10);
+        var archivedTransactions = await context.Transactions.IgnoreQueryFilters()
+            .Where(t => t.IsArchived)
+            .ToListAsync();
+
+        Assert.Equal(0, totalCount);
+        Assert.Empty(items);
+        Assert.Equal(2, archivedTransactions.Count);
+        Assert.All(archivedTransactions, t => Assert.True(t.IsArchived));
     }
 
     private async Task<Account> CreateAccountAsync(PennywiseDbContext context)

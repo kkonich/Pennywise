@@ -111,17 +111,33 @@ public sealed class TransactionRepository : ITransactionRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task ArchiveManyAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
-        var transaction = await _dbContext.Transactions
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
-        if (transaction is null)
+        if (ids.Count == 0)
         {
             return;
         }
 
-        transaction.IsArchived = true;
+        var transactions = await _dbContext.Transactions
+            .IgnoreQueryFilters()
+            .Where(transaction => ids.Contains(transaction.Id))
+            .ToListAsync(cancellationToken);
+
+        if (transactions.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var transaction in transactions)
+        {
+            transaction.IsArchived = true;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await ArchiveManyAsync(new[] { id }, cancellationToken);
     }
 }
