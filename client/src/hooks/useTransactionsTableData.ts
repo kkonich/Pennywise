@@ -39,7 +39,7 @@ type UseTransactionsTableDataResult = {
   categories: CategoryDto[]
   draftFilters: TransactionFilterDraft
   onDraftFilterChange: (next: TransactionFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: TransactionFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
@@ -320,8 +320,8 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     setDraftFilters(next)
   }
 
-  function onApplyFilters() {
-    setAppliedFilters(normalizeDraftFilters(draftFilters))
+  function onApplyFilters(next: TransactionFilterDraft = draftFilters) {
+    setAppliedFilters(normalizeDraftFilters(next))
     setPage(1)
   }
 

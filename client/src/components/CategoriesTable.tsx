@@ -18,7 +18,7 @@ type CategoriesTableProps = {
   totalCount: number
   filters: CategoryFilterDraft
   onFiltersChange: (next: CategoryFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: CategoryFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateCategory: (request: CategoryCreateRequest) => Promise<void>
@@ -316,9 +316,16 @@ export function CategoriesTable({
             allowClear
             placeholder={t('categories.filters.search')}
             value={filters.searchTerm}
-            onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
+            onChange={(event) => {
+              const nextFilters = { ...filters, searchTerm: event.target.value || undefined }
+              onFiltersChange(nextFilters)
+
+              if (!nextFilters.searchTerm && filters.searchTerm) {
+                onApplyFilters(nextFilters)
+              }
+            }}
           />
-          <Button onClick={onApplyFilters}>{t('categories.filters.apply')}</Button>
+          <Button onClick={() => onApplyFilters()}>{t('categories.filters.apply')}</Button>
           <Button onClick={onResetFilters}>{t('categories.filters.reset')}</Button>
         </Space>
       </div>

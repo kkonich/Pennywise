@@ -24,7 +24,7 @@ type UseCategoriesTableDataResult = {
   totalCount: number
   draftFilters: CategoryFilterDraft
   onDraftFilterChange: (next: CategoryFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: CategoryFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateCategory: (request: CategoryCreateRequest) => Promise<void>
@@ -201,8 +201,8 @@ export function useCategoriesTableData(): UseCategoriesTableDataResult {
     setDraftFilters(next)
   }
 
-  function onApplyFilters() {
-    setAppliedFilters(normalizeDraftFilters(draftFilters))
+  function onApplyFilters(next: CategoryFilterDraft = draftFilters) {
+    setAppliedFilters(normalizeDraftFilters(next))
     setPage(1)
   }
 

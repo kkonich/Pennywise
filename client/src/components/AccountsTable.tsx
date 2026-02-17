@@ -16,7 +16,7 @@ type AccountsTableProps = {
   totalCount: number
   filters: AccountFilterDraft
   onFiltersChange: (next: AccountFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: AccountFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateAccount: (request: AccountCreateRequest) => Promise<void>
@@ -246,7 +246,14 @@ export function AccountsTable({
             allowClear
             placeholder={t('accounts.filters.search')}
             value={filters.searchTerm}
-            onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
+            onChange={(event) => {
+              const nextFilters = { ...filters, searchTerm: event.target.value || undefined }
+              onFiltersChange(nextFilters)
+
+              if (!nextFilters.searchTerm && filters.searchTerm) {
+                onApplyFilters(nextFilters)
+              }
+            }}
             onPressEnter={() => {
               onApplyFilters()
             }}

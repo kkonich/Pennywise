@@ -22,7 +22,7 @@ type UseAccountsTableDataResult = {
   totalCount: number
   draftFilters: AccountFilterDraft
   onDraftFilterChange: (next: AccountFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: AccountFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateAccount: (request: AccountCreateRequest) => Promise<void>
@@ -144,8 +144,8 @@ export function useAccountsTableData(): UseAccountsTableDataResult {
     setDraftFilters(next)
   }
 
-  function onApplyFilters() {
-    setAppliedFilters(normalizeDraftFilters(draftFilters))
+  function onApplyFilters(next: AccountFilterDraft = draftFilters) {
+    setAppliedFilters(normalizeDraftFilters(next))
     setPage(1)
   }
 

@@ -52,7 +52,7 @@ type TransactionsTableProps = {
   categories: CategoryDto[]
   filters: TransactionFilterDraft
   onFiltersChange: (next: TransactionFilterDraft) => void
-  onApplyFilters: () => void
+  onApplyFilters: (next?: TransactionFilterDraft) => void
   onResetFilters: () => void
   onPageChange: (page: number, pageSize: number) => void
   onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
@@ -446,14 +446,25 @@ export function TransactionsTable({
             allowClear
             placeholder={t('transactions.filters.note')}
             value={filters.searchTerm}
-            onChange={(event) => onFiltersChange({ ...filters, searchTerm: event.target.value || undefined })}
+            onChange={(event) => {
+              const nextFilters = { ...filters, searchTerm: event.target.value || undefined }
+              onFiltersChange(nextFilters)
+
+              if (!nextFilters.searchTerm && filters.searchTerm) {
+                onApplyFilters(nextFilters)
+              }
+            }}
           />
           <Select
             allowClear
             placeholder={t('transactions.filters.account')}
             value={filters.accountId}
             options={accounts.map((account) => ({ value: account.id, label: account.name }))}
-            onChange={(value) => onFiltersChange({ ...filters, accountId: value })}
+            onChange={(value) => {
+              const nextFilters = { ...filters, accountId: value }
+              onFiltersChange(nextFilters)
+              onApplyFilters(nextFilters)
+            }}
             open={openPopup.account}
             onOpenChange={(isOpen) => setPopupOpen('account', isOpen)}
           />
@@ -462,7 +473,11 @@ export function TransactionsTable({
             placeholder={t('transactions.filters.category')}
             value={filters.categoryId}
             options={categoryOptions}
-            onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
+            onChange={(value) => {
+              const nextFilters = { ...filters, categoryId: value }
+              onFiltersChange(nextFilters)
+              onApplyFilters(nextFilters)
+            }}
             open={openPopup.category}
             onOpenChange={(isOpen) => setPopupOpen('category', isOpen)}
           />
@@ -474,17 +489,24 @@ export function TransactionsTable({
               { value: 'Expense', label: t('transactions.type.expense') },
               { value: 'Income', label: t('transactions.type.income') },
             ]}
-            onChange={(value) => onFiltersChange({ ...filters, type: value ?? undefined })}
+            onChange={(value) => {
+              const nextFilters = { ...filters, type: value ?? undefined }
+              onFiltersChange(nextFilters)
+              onApplyFilters(nextFilters)
+            }}
           />
           <DatePicker
             placeholder={t('transactions.filters.bookedFrom')}
             value={filters.bookedFrom ? dayjs(filters.bookedFrom) : null}
             format={dateInputFormat}
-            onChange={(date) =>
-              onFiltersChange({
+            onChange={(date) => {
+              const nextFilters = {
                 ...filters,
                 bookedFrom: date ? date.format('YYYY-MM-DD') : undefined,
-              })}
+              }
+              onFiltersChange(nextFilters)
+              onApplyFilters(nextFilters)
+            }}
             open={openPopup.bookedFrom}
             onOpenChange={(isOpen) => setPopupOpen('bookedFrom', isOpen)}
           />
@@ -492,11 +514,14 @@ export function TransactionsTable({
             placeholder={t('transactions.filters.bookedTo')}
             value={filters.bookedTo ? dayjs(filters.bookedTo) : null}
             format={dateInputFormat}
-            onChange={(date) =>
-              onFiltersChange({
+            onChange={(date) => {
+              const nextFilters = {
                 ...filters,
                 bookedTo: date ? date.format('YYYY-MM-DD') : undefined,
-              })}
+              }
+              onFiltersChange(nextFilters)
+              onApplyFilters(nextFilters)
+            }}
             open={openPopup.bookedTo}
             onOpenChange={(isOpen) => setPopupOpen('bookedTo', isOpen)}
           />
