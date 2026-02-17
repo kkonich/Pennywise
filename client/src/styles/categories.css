@@ -42,7 +42,19 @@
 }
 
 .categories-table .category-finance {
+  color: var(--color-transaction-amount);
+}
+
+.categories-table .category-finance-positive {
+  color: var(--color-transaction-amount-positive);
+}
+
+.categories-table .category-finance-negative {
   color: var(--color-transaction-amount-negative);
+}
+
+.categories-table .category-finance-neutral {
+  color: var(--color-transaction-amount);
 }
 
 .categories-edit-modal .ant-form-item-required::before {

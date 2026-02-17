@@ -170,7 +170,7 @@ export function useCategoriesTableData(): UseCategoriesTableDataResult {
     const totals: Record<string, number> = {}
 
     rawTransactions.forEach((transaction) => {
-      totals[transaction.categoryId] = (totals[transaction.categoryId] ?? 0) + Math.abs(transaction.amount)
+      totals[transaction.categoryId] = (totals[transaction.categoryId] ?? 0) + transaction.amount
     })
 
     return totals

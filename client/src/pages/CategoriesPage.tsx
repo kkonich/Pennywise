@@ -2,9 +2,11 @@ import { message } from 'antd'
 import { useEffect } from 'react'
 import { CategoriesTable } from '../components/CategoriesTable'
 import { useCategoriesTableData } from '../hooks/useCategoriesTableData'
+import { useUserSettings } from '../hooks/useUserSettings'
 
 export function CategoriesPage() {
   const [messageApi, messageContextHolder] = message.useMessage()
+  const { settings } = useUserSettings()
   const {
     items,
     spentByCategoryId,
@@ -25,6 +27,7 @@ export function CategoriesPage() {
     isUpdatingCategory,
     isDeletingCategory,
   } = useCategoriesTableData()
+  const currencyCode = settings?.currencyCode ?? 'EUR'
 
   useEffect(() => {
     if (!error) {
@@ -40,6 +43,7 @@ export function CategoriesPage() {
       <CategoriesTable
         items={items}
         spentByCategoryId={spentByCategoryId}
+        currencyCode={currencyCode}
         isLoading={isLoading}
         page={page}
         pageSize={pageSize}

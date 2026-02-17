@@ -9,6 +9,7 @@ import type { CategoryCreateRequest, CategoryDto, CategoryUpdateRequest } from '
 type CategoriesTableProps = {
   items: CategoryDto[]
   spentByCategoryId: Record<string, number>
+  currencyCode: string
   title?: string
   isLoading?: boolean
   page: number
@@ -31,13 +32,18 @@ type CategoryFormValues = {
   name: string
 }
 
-function formatMoney(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
+function formatMoney(value: number, locale: string, currencyCode: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currencyCode,
+    currencyDisplay: 'code',
+  }).format(value)
 }
 
 export function CategoriesTable({
   items,
   spentByCategoryId,
+  currencyCode,
   title,
   isLoading = false,
   page,
@@ -90,11 +96,21 @@ export function CategoriesTable({
         key: 'finances',
         align: 'right',
         sorter: (a, b) => (spentByCategoryId[a.id] ?? 0) - (spentByCategoryId[b.id] ?? 0),
-        render: (_value, record) => (
-          <Typography.Text strong className="category-finance">
-            {formatMoney(spentByCategoryId[record.id] ?? 0, locale)}
-          </Typography.Text>
-        ),
+        render: (_value, record) => {
+          const total = spentByCategoryId[record.id] ?? 0
+          const financeClassName =
+            total > 0
+              ? 'category-finance category-finance-positive'
+              : total < 0
+                ? 'category-finance category-finance-negative'
+                : 'category-finance category-finance-neutral'
+
+          return (
+            <Typography.Text strong className={financeClassName}>
+              {formatMoney(total, locale, currencyCode)}
+            </Typography.Text>
+          )
+        },
       },
       {
         title: '',
@@ -133,7 +149,7 @@ export function CategoriesTable({
         },
       },
     ],
-    [editForm, isDeletingCategory, locale, selectedRowId, spentByCategoryId, t],
+    [currencyCode, editForm, isDeletingCategory, locale, selectedRowId, spentByCategoryId, t],
   )
 
   function onFiltersKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
