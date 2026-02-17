@@ -273,7 +273,6 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
           quantity: transaction.amount,
           merchant: transaction.merchant?.trim() ? transaction.merchant : '-',
           merchantValue: transaction.merchant?.trim() ? transaction.merchant.trim() : undefined,
-          currencyCode: account?.currencyCode ?? 'EUR',
         }
       }),
     [rawItems, accountsById, categoriesById, t],

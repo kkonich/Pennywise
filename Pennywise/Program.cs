@@ -18,6 +18,7 @@ builder.Services.AddDbContext<PennywiseDbContext>(options =>
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
 // Serialize enums as strings (e.g. "Income") instead of numeric values (e.g. 1).
 builder.Services.AddControllers()

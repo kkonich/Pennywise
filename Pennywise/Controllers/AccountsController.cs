@@ -59,7 +59,6 @@ public sealed class AccountsController : ControllerBase
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
-            CurrencyCode = request.CurrencyCode,
             Balance = request.Balance,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -83,7 +82,6 @@ public sealed class AccountsController : ControllerBase
         }
 
         account.Name = request.Name;
-        account.CurrencyCode = request.CurrencyCode;
         account.Balance = request.Balance;
 
         await _repository.UpdateAsync(account, cancellationToken);
@@ -112,7 +110,6 @@ public sealed class AccountsController : ControllerBase
         {
             Id = account.Id,
             Name = account.Name,
-            CurrencyCode = account.CurrencyCode,
             Balance = account.Balance,
             CreatedAt = account.CreatedAt
         };

@@ -3,13 +3,14 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AccountsTable } from '../components/AccountsTable'
 import { useAccountsTableData } from '../hooks/useAccountsTableData'
+import { useUserSettings } from '../hooks/useUserSettings'
 
 export function AccountsPage() {
   const { t } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
+  const { settings, error: settingsError } = useUserSettings()
   const {
     items,
-    accounts,
     isLoading,
     error,
     page,
@@ -36,12 +37,22 @@ export function AccountsPage() {
     messageApi.error(`${t('errors.accountsLoad')} ${error}`)
   }, [error, messageApi, t])
 
+  useEffect(() => {
+    if (!settingsError) {
+      return
+    }
+
+    messageApi.error(`${t('errors.settingsLoad')} ${settingsError}`)
+  }, [messageApi, settingsError, t])
+
+  const currencyCode = settings?.currencyCode ?? 'EUR'
+
   return (
     <>
       {messageContextHolder}
       <AccountsTable
         items={items}
-        accounts={accounts}
+        currencyCode={currencyCode}
         isLoading={isLoading}
         page={page}
         pageSize={pageSize}

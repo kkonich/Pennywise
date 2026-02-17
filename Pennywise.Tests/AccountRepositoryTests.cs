@@ -50,7 +50,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Main",
-            CurrencyCode = "EUR",
             Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -61,7 +60,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
 
         Assert.NotNull(fetched);
         Assert.Equal("Main", fetched!.Name);
-        Assert.Equal("EUR", fetched.CurrencyCode);
         Assert.Equal(100m, fetched.Balance);
     }
     
@@ -75,7 +73,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Savings",
-            CurrencyCode = "EUR",
             Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         });
@@ -83,7 +80,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Cash",
-            CurrencyCode = "EUR",
             Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         });
@@ -105,7 +101,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Main",
-            CurrencyCode = "EUR",
             Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -134,7 +129,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Main",
-            CurrencyCode = "EUR",
             Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -171,7 +165,6 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         {
             Id = accountId,
             Name = "Main",
-            CurrencyCode = "EUR",
             Balance = 100m,
             CreatedAt = DateTimeOffset.UtcNow
         });

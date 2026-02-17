@@ -8,6 +8,7 @@ const en = {
       accountCreate: 'Account could not be created.',
       accountUpdate: 'Account could not be saved.',
       accountDelete: 'Account could not be deleted.',
+      settingsLoad: 'Settings could not be loaded.',
       categoriesLoad: 'Categories could not be loaded.',
       categoryCreate: 'Category could not be created.',
       categoryUpdate: 'Category could not be saved.',
@@ -62,8 +63,7 @@ const en = {
         success: 'Account deleted successfully.',
       },
       filters: {
-        search: 'Search by name or currency',
-        currency: 'Currency',
+        search: 'Search by name',
         apply: 'Apply',
         reset: 'Reset',
       },
@@ -171,6 +171,29 @@ const en = {
       },
       validation: {
         amountNonZero: 'Amount must not be zero.',
+      },
+    },
+    settings: {
+      title: 'Settings',
+      actions: {
+        save: 'Save',
+        reset: 'Reset',
+      },
+      messages: {
+        updated: 'Settings saved.',
+      },
+      resetConfirm: {
+        title: 'Reset changes?',
+        description: 'Do you really want to discard your changes and restore the saved settings?',
+        confirm: 'Reset',
+        cancel: 'Cancel',
+      },
+      currency: {
+        title: 'Default currency',
+        description: 'Select the currency used for all accounts, transactions, and categories.',
+        label: 'Currency',
+        required: 'Please choose a currency.',
+        appliesGlobally: 'Applies to all balances and transactions.',
       },
     },
   },

@@ -8,6 +8,7 @@ const de = {
       accountCreate: 'Konto konnte nicht erstellt werden.',
       accountUpdate: 'Konto konnte nicht gespeichert werden.',
       accountDelete: 'Konto konnte nicht gelöscht werden.',
+      settingsLoad: 'Einstellungen konnten nicht geladen werden.',
       categoriesLoad: 'Kategorien konnten nicht geladen werden.',
       categoryCreate: 'Kategorie konnte nicht erstellt werden.',
       categoryUpdate: 'Kategorie konnte nicht gespeichert werden.',
@@ -32,7 +33,6 @@ const de = {
       empty: 'Keine Konten vorhanden.',
       columns: {
         name: 'Name',
-        currency: 'Währung',
         balance: 'Kontostand',
         createdAt: 'Erstellt am',
       },
@@ -63,8 +63,7 @@ const de = {
         success: 'Konto wurde erfolgreich gelöscht.',
       },
       filters: {
-        search: 'Nach Name oder Währung suchen',
-        currency: 'Währung',
+        search: 'Nach Name suchen',
         apply: 'Anwenden',
         reset: 'Zurücksetzen',
       },
@@ -172,6 +171,30 @@ const de = {
       },
       validation: {
         amountNonZero: 'Betrag darf nicht 0 sein.',
+      },
+    },
+    settings: {
+      title: 'Einstellungen',
+      actions: {
+        save: 'Speichern',
+        reset: 'Zurücksetzen',
+      },
+      messages: {
+        updated: 'Einstellungen gespeichert.',
+      },
+      resetConfirm: {
+        title: 'Änderungen zurücksetzen?',
+        description:
+          'Möchtest du deine Änderungen wirklich verwerfen und die gespeicherten Einstellungen wiederherstellen?',
+        confirm: 'Zurücksetzen',
+        cancel: 'Abbrechen',
+      },
+      currency: {
+        title: 'Standardwährung',
+        description: 'Wähle die Währung, die für alle Konten, Transaktionen und Kategorien gilt.',
+        label: 'Währung',
+        required: 'Bitte eine Währung auswählen.',
+        appliesGlobally: 'Gilt für alle Salden und Buchungen.',
       },
     },
   },

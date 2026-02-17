@@ -175,7 +175,6 @@ public sealed class TransactionsControllerReferenceValidationTests
         {
             Id = id,
             Name = "Cash",
-            CurrencyCode = "EUR",
             Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         };

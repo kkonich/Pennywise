@@ -15,6 +15,7 @@ import App from './App.tsx'
 import { DEFAULT_ROUTE } from './navigation/navConfig'
 import { AccountsPage } from './pages/AccountsPage'
 import { CategoriesPage } from './pages/CategoriesPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { antdDarkTheme } from './theme/antdDarkTheme'
 import { applyDesignTokens } from './theme/designTokensDark.ts'
@@ -51,7 +52,7 @@ export function AppProviders() {
               <Route path="accounts" element={<AccountsPage />} />
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="transactions" element={<TransactionsPage />} />
-              <Route path="settings" element={<></>} />
+              <Route path="settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to={DEFAULT_ROUTE} replace />} />
             </Route>
           </Routes>

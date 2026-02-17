@@ -34,11 +34,11 @@ export type TransactionItem = {
   quantity: number
   merchant: string
   merchantValue?: string
-  currencyCode?: string
 }
 
 type TransactionsTableProps = {
   items: TransactionItem[]
+  currencyCode: string
   title?: string
   isLoading?: boolean
   page: number
@@ -90,6 +90,7 @@ type TransactionFormValues = {
 
 export function TransactionsTable({
   items,
+  currencyCode,
   title,
   isLoading = false,
   page,
@@ -123,11 +124,7 @@ export function TransactionsTable({
 
   const hasOpenPopup = useMemo(() => Object.values(openPopup).some(Boolean), [openPopup])
   const accountOptions = useMemo(
-    () =>
-      accounts.map((account) => ({
-        value: account.id,
-        label: `${account.name} (${account.currencyCode})`,
-      })),
+    () => accounts.map((account) => ({ value: account.id, label: account.name })),
     [accounts],
   )
   const cardTitle = title ?? t('transactions.titleLatest')
@@ -190,7 +187,7 @@ export function TransactionsTable({
           return (
             <Typography.Text strong className={amountClassName}>
               {prefix}
-              {formatCurrency(absValue, locale, record.currencyCode ?? 'EUR')}
+              {formatCurrency(absValue, locale, currencyCode)}
             </Typography.Text>
           )
         },
@@ -243,7 +240,7 @@ export function TransactionsTable({
         },
       },
     ],
-    [editForm, isDeletingTransaction, locale, selectedRowId, t],
+    [currencyCode, editForm, isDeletingTransaction, locale, selectedRowId, t],
   )
 
   function closeAllPopups() {
@@ -543,7 +540,7 @@ export function TransactionsTable({
             {t('transactions.delete.confirmDescription')}{' '}
             (
             {deletingTransaction.note}, {deletingTransaction.account},{' '}
-            {formatCurrency(Math.abs(deletingTransaction.quantity), locale, deletingTransaction.currencyCode ?? 'EUR')}
+            {formatCurrency(Math.abs(deletingTransaction.quantity), locale, currencyCode)}
             )
           </Typography.Paragraph>
         )}

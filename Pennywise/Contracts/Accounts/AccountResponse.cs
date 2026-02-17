@@ -16,11 +16,6 @@ public sealed class AccountResponse
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// ISO currency code (e.g., EUR, USD).
-    /// </summary>
-    public string CurrencyCode { get; set; } = string.Empty;
-
-    /// <summary>
     /// Current balance of the account.
     /// </summary>
     public decimal Balance { get; set; }

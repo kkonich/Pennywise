@@ -12,6 +12,7 @@ public sealed class PennywiseDbContext : DbContext
 
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<UserSettings> UserSettings => Set<UserSettings>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,7 +21,6 @@ public sealed class PennywiseDbContext : DbContext
         {
             entity.HasKey(account => account.Id);
             entity.Property(account => account.Name).HasMaxLength(200);
-            entity.Property(account => account.CurrencyCode).HasMaxLength(3);
             entity.Property(account => account.Balance).HasPrecision(18, 2);
         });
 
@@ -28,6 +28,14 @@ public sealed class PennywiseDbContext : DbContext
         {
             entity.HasKey(category => category.Id);
             entity.ToTable("Category");
+        });
+
+        modelBuilder.Entity<UserSettings>(entity =>
+        {
+            entity.HasKey(settings => settings.Id);
+            entity.ToTable("UserSettings");
+            entity.Property(settings => settings.Id).ValueGeneratedNever();
+            entity.Property(settings => settings.CurrencyCode).HasMaxLength(3);
         });
 
         modelBuilder.Entity<Transaction>(entity =>

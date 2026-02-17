@@ -352,7 +352,6 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         {
             Id = Guid.NewGuid(),
             Name = "Main",
-            CurrencyCode = "EUR",
             Balance = 0m,
             CreatedAt = DateTimeOffset.UtcNow
         };

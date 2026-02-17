@@ -1,0 +1,134 @@
+import { Button, Card, Form, Modal, Select, Space, Typography, message } from 'antd'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { COMMON_CURRENCIES } from '../constants/currencies'
+import { useUserSettings } from '../hooks/useUserSettings'
+
+type SettingsFormValues = {
+  currencyCode: string
+}
+
+export function SettingsPage() {
+  const { t } = useTranslation()
+  const [messageApi, messageContextHolder] = message.useMessage()
+  const { settings, isLoading, error, updateCurrency, isUpdating } = useUserSettings()
+  const [form] = Form.useForm<SettingsFormValues>()
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+  const watchedCurrencyCode = Form.useWatch('currencyCode', form)
+
+  const normalizedWatchedCurrencyCode = watchedCurrencyCode?.trim().toUpperCase() ?? ''
+  const normalizedSavedCurrencyCode = settings?.currencyCode.trim().toUpperCase() ?? ''
+  const hasChanges = Boolean(settings) && normalizedWatchedCurrencyCode !== normalizedSavedCurrencyCode
+
+  useEffect(() => {
+    if (error) {
+      messageApi.error(error)
+    }
+  }, [error, messageApi])
+
+  useEffect(() => {
+    if (!settings) {
+      return
+    }
+
+    form.setFieldsValue({ currencyCode: settings.currencyCode })
+  }, [form, settings])
+
+  async function onSubmit(values: SettingsFormValues) {
+    await updateCurrency(values.currencyCode)
+    messageApi.success(t('settings.messages.updated'))
+  }
+
+  function onReset() {
+    if (!settings || !hasChanges) {
+      return
+    }
+
+    setIsResetModalOpen(true)
+  }
+
+  function closeResetModal() {
+    if (isUpdating) {
+      return
+    }
+
+    setIsResetModalOpen(false)
+  }
+
+  function confirmReset() {
+    if (!settings) {
+      return
+    }
+
+    form.setFieldsValue({ currencyCode: settings.currencyCode })
+    setIsResetModalOpen(false)
+  }
+
+  return (
+    <Card title={t('settings.title')} loading={isLoading}>
+      {messageContextHolder}
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
+        <div style={{ minHeight: 260, display: 'flex', flexDirection: 'column' }}>
+          <Typography.Title level={4} style={{ marginBottom: 4 }}>
+            {t('settings.currency.title')}
+          </Typography.Title>
+          <Typography.Paragraph
+            type="secondary"
+            style={{ marginBottom: 12, color: 'var(--color-text-secondary)' }}
+          >
+            {t('settings.currency.description')}
+          </Typography.Paragraph>
+          <Form<SettingsFormValues>
+            form={form}
+            layout="vertical"
+            onFinish={(values) => void onSubmit(values)}
+            style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+          >
+            <Form.Item
+              name="currencyCode"
+              label={t('settings.currency.label')}
+              rules={[{ required: true, message: t('settings.currency.required') }]}
+            >
+              <Select
+                showSearch
+                optionFilterProp="label"
+                options={COMMON_CURRENCIES}
+                disabled={isUpdating}
+              />
+            </Form.Item>
+
+            <Typography.Text type="secondary" style={{ color: 'var(--color-text-secondary)' }}>
+              {t('settings.currency.appliesGlobally')}
+            </Typography.Text>
+
+            <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+              <Space>
+                <Button onClick={onReset} disabled={!hasChanges || isUpdating}>
+                  {t('settings.actions.reset')}
+                </Button>
+                <Button htmlType="submit" loading={isUpdating} disabled={!hasChanges}>
+                  {t('settings.actions.save')}
+                </Button>
+              </Space>
+            </div>
+          </Form>
+        </div>
+      </Space>
+
+      <Modal
+        open={isResetModalOpen}
+        centered
+        title={t('settings.resetConfirm.title')}
+        okText={t('settings.resetConfirm.confirm')}
+        cancelText={t('settings.resetConfirm.cancel')}
+        onOk={confirmReset}
+        onCancel={closeResetModal}
+        mask={{ closable: !isUpdating }}
+      >
+        <Typography.Paragraph style={{ marginBottom: 0 }}>
+          {t('settings.resetConfirm.description')}
+        </Typography.Paragraph>
+      </Modal>
+    </Card>
+  )
+}

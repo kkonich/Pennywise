@@ -1,10 +1,14 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Pennywise.Infrastructure.Data;
 
 #nullable disable
 
 namespace Pennywise.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(PennywiseDbContext))]
+    [Migration("20260215164000_AddTransactionQueryIndexes")]
     public partial class AddTransactionQueryIndexes : Migration
     {
         /// <inheritdoc />

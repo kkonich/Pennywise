@@ -6,12 +6,10 @@ import type { AccountCreateRequest, AccountDto, AccountUpdateRequest } from '../
 
 export type AccountFilterDraft = {
   searchTerm?: string
-  currencyCode?: string
 }
 
 type AccountFilters = {
   searchTerm?: string
-  currencyCode?: string
 }
 
 type UseAccountsTableDataResult = {
@@ -37,7 +35,6 @@ type UseAccountsTableDataResult = {
 
 const emptyDraftFilters: AccountFilterDraft = {
   searchTerm: undefined,
-  currencyCode: undefined,
 }
 const emptyAccounts: AccountDto[] = []
 
@@ -53,7 +50,6 @@ function toTrimmedString(value: string | undefined): string | undefined {
 function normalizeDraftFilters(draft: AccountFilterDraft): AccountFilters {
   return {
     searchTerm: toTrimmedString(draft.searchTerm)?.toLocaleLowerCase(),
-    currencyCode: draft.currencyCode,
   }
 }
 
@@ -114,18 +110,14 @@ export function useAccountsTableData(): UseAccountsTableDataResult {
     const searchTerm = appliedFilters.searchTerm
 
     return rawAccounts.filter((account) => {
-      if (appliedFilters.currencyCode && account.currencyCode !== appliedFilters.currencyCode) {
-        return false
-      }
-
       if (!searchTerm) {
         return true
       }
 
-      const searchValue = `${account.name} ${account.currencyCode}`.toLocaleLowerCase()
+      const searchValue = account.name.toLocaleLowerCase()
       return searchValue.includes(searchTerm)
     })
-  }, [appliedFilters.currencyCode, appliedFilters.searchTerm, rawAccounts])
+  }, [appliedFilters.searchTerm, rawAccounts])
 
   const totalCount = filteredAccounts.length
 
