@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Form, Input, Modal, Pagination, Select, Space, Table, Tag, Typography, message } from 'antd'
-import type { TableColumnsType } from 'antd'
+import type { TableColumnsType, TableProps } from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryFilterDraft } from '../hooks/useCategoriesTableData'
@@ -24,9 +24,11 @@ type CategoriesTableProps = {
   onCreateCategory: (request: CategoryCreateRequest) => Promise<void>
   onUpdateCategory: (id: string, request: CategoryUpdateRequest) => Promise<void>
   onDeleteCategory: (id: string) => Promise<void>
+  onArchiveCategories: (ids: string[]) => Promise<void>
   isCreatingCategory?: boolean
   isUpdatingCategory?: boolean
   isDeletingCategory?: boolean
+  isArchivingCategory?: boolean
 }
 
 type CategoryFormValues = {
@@ -58,21 +60,34 @@ export function CategoriesTable({
   onCreateCategory,
   onUpdateCategory,
   onDeleteCategory,
+  onArchiveCategories,
   isCreatingCategory = false,
   isUpdatingCategory = false,
   isDeletingCategory = false,
+  isArchivingCategory = false,
 }: CategoriesTableProps) {
   const { t, i18n } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
   const [createForm] = Form.useForm<CategoryFormValues>()
   const [editForm] = Form.useForm<CategoryFormValues>()
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null)
   const [deletingCategory, setDeletingCategory] = useState<CategoryDto | null>(null)
   const locale = i18n.resolvedLanguage === 'de' ? 'de-DE' : 'en-US'
   const cardTitle = title ?? t('categories.title')
   const cardClassName = 'categories-table'
+  const hasSelection = selectedRowKeys.length > 0
+  const rowSelection: NonNullable<TableProps<CategoryDto>['rowSelection']> = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys.map(String)),
+    getCheckboxProps: (record: CategoryDto) => ({
+      disabled: record.id === UNCATEGORIZED_CATEGORY_ID,
+    }),
+    renderCell: (_checked, record, _index, originNode) =>
+      record.id === UNCATEGORIZED_CATEGORY_ID ? null : originNode,
+  }
 
   const nameRules = useMemo(
     () => [
@@ -298,15 +313,39 @@ export function CategoriesTable({
     }
   }
 
+  async function onArchiveSelected() {
+    if (selectedRowKeys.length === 0) {
+      return
+    }
+
+    try {
+      await onArchiveCategories(selectedRowKeys.map(String))
+      setSelectedRowKeys([])
+      messageApi.success(t('categories.archive.selectedSuccess'))
+    } catch (error) {
+      messageApi.error(error instanceof Error ? error.message : t('errors.categoryDelete'))
+    }
+  }
+
   return (
     <Card
       className={cardClassName}
       title={cardTitle}
       variant="borderless"
       extra={
-        <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingCategory}>
-          {t('categories.create.open')}
-        </Button>
+        <Space>
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => void onArchiveSelected()}
+            disabled={!hasSelection}
+            loading={isArchivingCategory}
+          >
+            {t('categories.archive.selected')}
+          </Button>
+          <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingCategory}>
+            {t('categories.create.open')}
+          </Button>
+        </Space>
       }
     >
       {messageContextHolder}
@@ -332,6 +371,7 @@ export function CategoriesTable({
 
       <Table<CategoryDto>
         rowKey="id"
+        rowSelection={rowSelection}
         columns={columns}
         showSorterTooltip={{ target: 'sorter-icon', mouseEnterDelay: 0.5 }}
         dataSource={items}

@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Card, Form, Input, InputNumber, Modal, Pagination, Space, Table, Typography, message } from 'antd'
-import type { TableColumnsType } from 'antd'
+import type { TableColumnsType, TableProps } from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AccountFilterDraft } from '../hooks/useAccountsTableData'
@@ -22,9 +22,11 @@ type AccountsTableProps = {
   onCreateAccount: (request: AccountCreateRequest) => Promise<void>
   onUpdateAccount: (id: string, request: AccountUpdateRequest) => Promise<void>
   onDeleteAccount: (id: string) => Promise<void>
+  onArchiveAccounts: (ids: string[]) => Promise<void>
   isCreatingAccount?: boolean
   isUpdatingAccount?: boolean
   isDeletingAccount?: boolean
+  isArchivingAccounts?: boolean
 }
 
 type AccountFormValues = {
@@ -52,15 +54,19 @@ export function AccountsTable({
   onCreateAccount,
   onUpdateAccount,
   onDeleteAccount,
+  onArchiveAccounts,
   isCreatingAccount = false,
   isUpdatingAccount = false,
   isDeletingAccount = false,
+  isArchivingAccounts = false,
 }: AccountsTableProps) {
   const { t, i18n } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
   const [createForm] = Form.useForm<AccountFormValues>()
   const [editForm] = Form.useForm<AccountFormValues>()
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([])
+  const [isArchiveConfirmOpen, setIsArchiveConfirmOpen] = useState(false)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<AccountDto | null>(null)
   const [deletingAccount, setDeletingAccount] = useState<AccountDto | null>(null)
@@ -81,6 +87,11 @@ export function AccountsTable({
   )
 
   const cardClassName = 'accounts-table'
+  const hasSelection = selectedRowKeys.length > 0
+  const rowSelection: NonNullable<TableProps<AccountDto>['rowSelection']> = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys.map(String)),
+  }
   const columns: TableColumnsType<AccountDto> = useMemo(
     () => [
       {
@@ -228,15 +239,50 @@ export function AccountsTable({
     }
   }
 
+  async function onArchiveSelected() {
+    if (selectedRowKeys.length === 0) {
+      return
+    }
+
+    try {
+      await onArchiveAccounts(selectedRowKeys.map(String))
+      setSelectedRowKeys([])
+      setIsArchiveConfirmOpen(false)
+      messageApi.success(t('accounts.archive.selectedSuccess'))
+    } catch (error) {
+      messageApi.error(error instanceof Error ? error.message : t('errors.accountDelete'))
+    }
+  }
+
+  function closeArchiveConfirmModal() {
+    if (isArchivingAccounts) {
+      return
+    }
+
+    setIsArchiveConfirmOpen(false)
+  }
+
   return (
     <Card
       className={cardClassName}
       title={cardTitle}
       variant="borderless"
       extra={
-        <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingAccount}>
-          {t('accounts.create.open')}
-        </Button>
+        <Space>
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              setIsArchiveConfirmOpen(true)
+            }}
+            disabled={!hasSelection}
+            loading={isArchivingAccounts}
+          >
+            {t('accounts.archive.selected')}
+          </Button>
+          <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingAccount}>
+            {t('accounts.create.open')}
+          </Button>
+        </Space>
       }
     >
       {messageContextHolder}
@@ -277,6 +323,7 @@ export function AccountsTable({
 
       <Table<AccountDto>
         rowKey="id"
+        rowSelection={rowSelection}
         columns={columns}
         showSorterTooltip={{ target: 'sorter-icon', mouseEnterDelay: 0.5 }}
         dataSource={items}
@@ -351,6 +398,22 @@ export function AccountsTable({
             <Typography.Text type="danger">{t('accounts.delete.cascadeWarning')}</Typography.Text>
           </>
         )}
+      </Modal>
+
+      <Modal
+        open={isArchiveConfirmOpen}
+        centered
+        title={t('accounts.archive.selected')}
+        okText={t('accounts.delete.confirm')}
+        cancelText={t('accounts.delete.cancel')}
+        onOk={() => {
+          void onArchiveSelected()
+        }}
+        onCancel={closeArchiveConfirmModal}
+        confirmLoading={isArchivingAccounts}
+        mask={{ closable: !isArchivingAccounts }}
+      >
+        <Typography.Text type="danger">{t('accounts.delete.cascadeWarning')}</Typography.Text>
       </Modal>
 
       <Modal

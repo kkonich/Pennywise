@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { createCategory, deleteCategory, fetchCategories, updateCategory } from '../api/categoriesApi'
+import { archiveCategories, createCategory, deleteCategory, fetchCategories, updateCategory } from '../api/categoriesApi'
 import { fetchTransactionsPage } from '../api/transactionsApi'
 import type { CategoryCreateRequest, CategoryDto, CategoryUpdateRequest } from '../types/category'
 import type { TransactionDto } from '../types/transaction'
@@ -30,9 +30,11 @@ type UseCategoriesTableDataResult = {
   onCreateCategory: (request: CategoryCreateRequest) => Promise<void>
   onUpdateCategory: (id: string, request: CategoryUpdateRequest) => Promise<void>
   onDeleteCategory: (id: string) => Promise<void>
+  onArchiveCategories: (ids: string[]) => Promise<void>
   isCreatingCategory: boolean
   isUpdatingCategory: boolean
   isDeletingCategory: boolean
+  isArchivingCategory: boolean
 }
 
 const emptyDraftFilters: CategoryFilterDraft = {
@@ -151,6 +153,26 @@ export function useCategoriesTableData(): UseCategoriesTableDataResult {
     },
   })
 
+  const archiveMutation = useMutation({
+    mutationFn: (ids: string[]) => archiveCategories(ids),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['categories'],
+        refetchType: 'active',
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchType: 'active',
+      })
+
+      setPage((current) => {
+        const nextTotalCount = Math.max(0, totalCount - variables.length)
+        const maxPage = Math.max(1, Math.ceil(nextTotalCount / pageSize))
+        return Math.min(current, maxPage)
+      })
+    },
+  })
+
   const rawCategories = categoriesQuery.data ?? emptyCategories
   const filteredCategories = useMemo(() => {
     const searchTerm = appliedFilters.searchTerm
@@ -230,6 +252,14 @@ export function useCategoriesTableData(): UseCategoriesTableDataResult {
     })
   }
 
+  async function onArchiveCategories(ids: string[]) {
+    if (ids.length === 0) {
+      return
+    }
+
+    await archiveMutation.mutateAsync(ids)
+  }
+
   return {
     items,
     spentByCategoryId,
@@ -246,8 +276,10 @@ export function useCategoriesTableData(): UseCategoriesTableDataResult {
     onCreateCategory,
     onUpdateCategory,
     onDeleteCategory,
+    onArchiveCategories,
     isCreatingCategory: createMutation.isPending,
     isUpdatingCategory: updateMutation.isPending,
     isDeletingCategory: deleteMutation.isPending,
+    isArchivingCategory: archiveMutation.isPending,
   }
 }

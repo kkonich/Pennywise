@@ -73,6 +73,10 @@ const en = {
       validation: {
         balanceRequired: 'Balance is required.',
       },
+      archive: {
+        selected: 'Archive selected',
+        selectedSuccess: 'Selected accounts archived.',
+      },
     },
     categories: {
       title: 'Categories',
@@ -116,6 +120,10 @@ const en = {
       },
       validation: {
         nameRequired: 'Name is required.',
+      },
+      archive: {
+        selected: 'Archive selected',
+        selectedSuccess: 'Selected categories archived.',
       },
     },
     transactions: {
@@ -178,6 +186,10 @@ const en = {
       },
       validation: {
         amountNonZero: 'Amount must not be zero.',
+      },
+      archive: {
+        selected: 'Archive selected',
+        selectedSuccess: 'Selected transactions archived.',
       },
     },
     settings: {

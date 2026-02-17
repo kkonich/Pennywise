@@ -16,3 +16,7 @@ export function updateAccount(id: string, request: AccountUpdateRequest): Promis
 export function deleteAccount(id: string): Promise<void> {
   return deleteJson(`/api/accounts/${id}`)
 }
+
+export function archiveAccounts(ids: string[]): Promise<void> {
+  return postJson('/api/accounts/archive', { body: { ids } })
+}

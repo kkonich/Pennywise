@@ -29,6 +29,8 @@ export function TransactionsPage() {
     isCreatingTransaction,
     isUpdatingTransaction,
     isDeletingTransaction,
+    onArchiveTransactions,
+    isArchivingTransaction,
   } = useTransactionsTableData()
 
   useEffect(() => {
@@ -72,6 +74,8 @@ export function TransactionsPage() {
         isCreatingTransaction={isCreatingTransaction}
         isUpdatingTransaction={isUpdatingTransaction}
         isDeletingTransaction={isDeletingTransaction}
+        onArchiveTransactions={onArchiveTransactions}
+        isArchivingTransaction={isArchivingTransaction}
       />
     </>
   )

@@ -69,6 +69,10 @@ export function deleteTransaction(id: string): Promise<void> {
   return deleteJson(`/api/transactions/${id}`)
 }
 
+export function archiveTransactions(ids: string[]): Promise<void> {
+  return postJson('/api/transactions/archive', { body: { ids } })
+}
+
 function normalizeTransactionsPageResponse(
   response: TransactionPageDto | TransactionDto[],
   page: number,

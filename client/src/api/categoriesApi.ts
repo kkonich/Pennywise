@@ -16,3 +16,7 @@ export function updateCategory(id: string, request: CategoryUpdateRequest): Prom
 export function deleteCategory(id: string): Promise<void> {
   return deleteJson(`/api/categories/${id}`)
 }
+
+export function archiveCategories(ids: string[]): Promise<void> {
+  return postJson('/api/categories/archive', { body: { ids } })
+}

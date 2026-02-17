@@ -15,7 +15,7 @@ import {
   Typography,
   message,
 } from 'antd'
-import type { TableColumnsType } from 'antd'
+import type { TableColumnsType, TableProps } from 'antd'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
@@ -58,9 +58,11 @@ type TransactionsTableProps = {
   onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
   onDeleteTransaction: (id: string) => Promise<void>
+  onArchiveTransactions: (ids: string[]) => Promise<void>
   isCreatingTransaction?: boolean
   isUpdatingTransaction?: boolean
   isDeletingTransaction?: boolean
+  isArchivingTransaction?: boolean
 }
 
 type OpenPopupState = {
@@ -111,9 +113,11 @@ export function TransactionsTable({
   onCreateTransaction,
   onUpdateTransaction,
   onDeleteTransaction,
+  onArchiveTransactions,
   isCreatingTransaction = false,
   isUpdatingTransaction = false,
   isDeletingTransaction = false,
+  isArchivingTransaction = false,
 }: TransactionsTableProps) {
   const { t, i18n } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
@@ -121,6 +125,7 @@ export function TransactionsTable({
   const [editForm] = Form.useForm<TransactionFormValues>()
   const [openPopup, setOpenPopup] = useState(createClosedPopupState)
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<TransactionItem | null>(null)
   const [deletingTransaction, setDeletingTransaction] = useState<TransactionItem | null>(null)
@@ -142,6 +147,11 @@ export function TransactionsTable({
     [categories, t],
   )
   const cardTitle = title ?? t('transactions.titleLatest')
+  const hasSelection = selectedRowKeys.length > 0
+  const rowSelection: NonNullable<TableProps<TransactionItem>['rowSelection']> = {
+    selectedRowKeys,
+    onChange: (keys) => setSelectedRowKeys(keys.map(String)),
+  }
   const amountRules = useMemo(
     () => [
       { required: true },
@@ -428,15 +438,39 @@ export function TransactionsTable({
     }
   }
 
+  async function onArchiveSelected() {
+    if (selectedRowKeys.length === 0) {
+      return
+    }
+
+    try {
+      await onArchiveTransactions(selectedRowKeys.map(String))
+      setSelectedRowKeys([])
+      messageApi.success(t('transactions.archive.selectedSuccess'))
+    } catch (error) {
+      messageApi.error(error instanceof Error ? error.message : t('errors.transactionDelete'))
+    }
+  }
+
   return (
     <Card
       className={cardClassName}
       title={cardTitle}
       variant="borderless"
       extra={
-        <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingTransaction}>
-          {t('transactions.create.open')}
-        </Button>
+        <Space>
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => void onArchiveSelected()}
+            disabled={!hasSelection}
+            loading={isArchivingTransaction}
+          >
+            {t('transactions.archive.selected')}
+          </Button>
+          <Button icon={<PlusOutlined />} onClick={openCreateModal} disabled={isCreatingTransaction}>
+            {t('transactions.create.open')}
+          </Button>
+        </Space>
       }
     >
       {messageContextHolder}
@@ -560,6 +594,7 @@ export function TransactionsTable({
 
       <Table<TransactionItem>
         rowKey="id"
+        rowSelection={rowSelection}
         columns={columns}
         showSorterTooltip={{ target: 'sorter-icon', mouseEnterDelay: 0.5 }}
         dataSource={items}

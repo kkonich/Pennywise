@@ -73,6 +73,10 @@ const de = {
       validation: {
         balanceRequired: 'Kontostand ist erforderlich.',
       },
+      archive: {
+        selected: 'Auswahl archivieren',
+        selectedSuccess: 'Ausgewählte Konten wurden archiviert.',
+      },
     },
     categories: {
       title: 'Kategorien',
@@ -116,6 +120,10 @@ const de = {
       },
       validation: {
         nameRequired: 'Name ist erforderlich.',
+      },
+      archive: {
+        selected: 'Auswahl archivieren',
+        selectedSuccess: 'Ausgewählte Kategorien wurden archiviert.',
       },
     },
     transactions: {
@@ -178,6 +186,10 @@ const de = {
       },
       validation: {
         amountNonZero: 'Betrag darf nicht 0 sein.',
+      },
+      archive: {
+        selected: 'Auswahl archivieren',
+        selectedSuccess: 'Ausgewählte Transaktionen wurden archiviert.',
       },
     },
     settings: {

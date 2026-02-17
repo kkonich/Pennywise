@@ -27,6 +27,8 @@ export function AccountsPage() {
     isCreatingAccount,
     isUpdatingAccount,
     isDeletingAccount,
+    onArchiveAccounts,
+    isArchivingAccounts,
   } = useAccountsTableData()
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export function AccountsPage() {
         isCreatingAccount={isCreatingAccount}
         isUpdatingAccount={isUpdatingAccount}
         isDeletingAccount={isDeletingAccount}
+        onArchiveAccounts={onArchiveAccounts}
+        isArchivingAccounts={isArchivingAccounts}
       />
     </>
   )

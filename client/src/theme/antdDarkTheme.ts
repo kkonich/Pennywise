@@ -86,6 +86,8 @@ export const antdDarkTheme: ThemeConfig = {
       headerSortActiveBg: designTokens.colorHoverFill,
       headerSortHoverBg: designTokens.colorHoverFill,
       bodySortBg: 'transparent',
+      rowSelectedBg: designTokens.colorSurfaceElevated,
+      rowSelectedHoverBg: designTokens.colorSurfaceElevated,
       rowHoverBg: designTokens.colorRowHover,
       borderColor: designTokens.colorTableBorder,
       headerSplitColor: 'transparent',

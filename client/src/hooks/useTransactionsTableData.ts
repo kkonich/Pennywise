@@ -3,7 +3,13 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
-import { createTransaction, deleteTransaction, fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
+import {
+  archiveTransactions,
+  createTransaction,
+  deleteTransaction,
+  fetchTransactionsPage,
+  updateTransaction,
+} from '../api/transactionsApi'
 import { UNCATEGORIZED_CATEGORY_ID } from '../constants/system'
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
@@ -45,9 +51,11 @@ type UseTransactionsTableDataResult = {
   onCreateTransaction: (request: TransactionCreateRequest) => Promise<void>
   onUpdateTransaction: (id: string, request: TransactionUpdateRequest) => Promise<void>
   onDeleteTransaction: (id: string) => Promise<void>
+  onArchiveTransactions: (ids: string[]) => Promise<void>
   isCreatingTransaction: boolean
   isUpdatingTransaction: boolean
   isDeletingTransaction: boolean
+  isArchivingTransaction: boolean
 }
 
 const emptyDraftFilters: TransactionFilterDraft = {
@@ -264,6 +272,22 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     },
   })
 
+  const archiveMutation = useMutation({
+    mutationFn: (ids: string[]) => archiveTransactions(ids),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchType: 'active',
+      })
+
+      setPage((current) => {
+        const nextTotalCount = Math.max(0, (transactionsQuery.data?.totalCount ?? 0) - variables.length)
+        const maxPage = Math.max(1, Math.ceil(nextTotalCount / pageSize))
+        return Math.min(current, maxPage)
+      })
+    },
+  })
+
   const accounts = accountsQuery.data ?? emptyAccounts
   const categories = categoriesQuery.data ?? emptyCategories
   const rawItems = transactionsQuery.data?.items ?? emptyTransactionItems
@@ -344,6 +368,14 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     await deleteMutation.mutateAsync(id)
   }
 
+  async function onArchiveTransactions(ids: string[]) {
+    if (ids.length === 0) {
+      return
+    }
+
+    await archiveMutation.mutateAsync(ids)
+  }
+
   return {
     items,
     isLoading,
@@ -361,8 +393,10 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onCreateTransaction,
     onUpdateTransaction,
     onDeleteTransaction,
+    onArchiveTransactions,
     isCreatingTransaction: createMutation.isPending,
     isUpdatingTransaction: updateMutation.isPending,
     isDeletingTransaction: deleteMutation.isPending,
+    isArchivingTransaction: archiveMutation.isPending,
   }
 }

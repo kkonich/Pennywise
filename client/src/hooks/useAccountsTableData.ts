@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { createAccount, deleteAccount, fetchAccounts, updateAccount } from '../api/accountsApi'
+import { archiveAccounts, createAccount, deleteAccount, fetchAccounts, updateAccount } from '../api/accountsApi'
 import type { AccountCreateRequest, AccountDto, AccountUpdateRequest } from '../types/account'
 
 export type AccountFilterDraft = {
@@ -28,9 +28,11 @@ type UseAccountsTableDataResult = {
   onCreateAccount: (request: AccountCreateRequest) => Promise<void>
   onUpdateAccount: (id: string, request: AccountUpdateRequest) => Promise<void>
   onDeleteAccount: (id: string) => Promise<void>
+  onArchiveAccounts: (ids: string[]) => Promise<void>
   isCreatingAccount: boolean
   isUpdatingAccount: boolean
   isDeletingAccount: boolean
+  isArchivingAccounts: boolean
 }
 
 const emptyDraftFilters: AccountFilterDraft = {
@@ -105,6 +107,22 @@ export function useAccountsTableData(): UseAccountsTableDataResult {
     },
   })
 
+  const archiveMutation = useMutation({
+    mutationFn: (ids: string[]) => archiveAccounts(ids),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['accounts'],
+        refetchType: 'active',
+      })
+
+      setPage((current) => {
+        const nextTotalCount = Math.max(0, totalCount - variables.length)
+        const maxPage = Math.max(1, Math.ceil(nextTotalCount / pageSize))
+        return Math.min(current, maxPage)
+      })
+    },
+  })
+
   const rawAccounts = accountsQuery.data ?? emptyAccounts
   const filteredAccounts = useMemo(() => {
     const searchTerm = appliedFilters.searchTerm
@@ -173,6 +191,14 @@ export function useAccountsTableData(): UseAccountsTableDataResult {
     })
   }
 
+  async function onArchiveAccounts(ids: string[]) {
+    if (ids.length === 0) {
+      return
+    }
+
+    await archiveMutation.mutateAsync(ids)
+  }
+
   return {
     items,
     accounts: rawAccounts,
@@ -189,8 +215,10 @@ export function useAccountsTableData(): UseAccountsTableDataResult {
     onCreateAccount,
     onUpdateAccount,
     onDeleteAccount,
+    onArchiveAccounts,
     isCreatingAccount: createMutation.isPending,
     isUpdatingAccount: updateMutation.isPending,
     isDeletingAccount: deleteMutation.isPending,
+    isArchivingAccounts: archiveMutation.isPending,
   }
 }

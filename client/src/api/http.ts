@@ -65,7 +65,16 @@ export async function postJson<T>(path: string, options: JsonRequestOptions): Pr
     throw new HttpError(response.status, message)
   }
 
-  return (await response.json()) as T
+  if (response.status === 204) {
+    return undefined as unknown as T
+  }
+
+  const text = await response.text()
+  if (!text) {
+    return undefined as unknown as T
+  }
+
+  return JSON.parse(text) as T
 }
 
 export async function deleteJson(path: string, options: RequestOptions = {}): Promise<void> {

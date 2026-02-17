@@ -26,6 +26,8 @@ export function CategoriesPage() {
     isCreatingCategory,
     isUpdatingCategory,
     isDeletingCategory,
+    onArchiveCategories,
+    isArchivingCategory,
   } = useCategoriesTableData()
   const currencyCode = settings?.currencyCode ?? 'EUR'
 
@@ -59,6 +61,8 @@ export function CategoriesPage() {
         isCreatingCategory={isCreatingCategory}
         isUpdatingCategory={isUpdatingCategory}
         isDeletingCategory={isDeletingCategory}
+        onArchiveCategories={onArchiveCategories}
+        isArchivingCategory={isArchivingCategory}
       />
     </>
   )
