@@ -133,11 +133,13 @@ public sealed class CategoryRepositoryTests : IAsyncLifetime
         await repository.UpdateAsync(category);
 
         var fetched = await repository.GetAsync(category.Id);
+        var archived = await context.Categories.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == category.Id);
 
-        Assert.NotNull(fetched);
-        Assert.Equal("Groceries Updated", fetched!.Name);
-        Assert.Equal(5, fetched.SortOrder);
-        Assert.True(fetched.IsArchived);
+        Assert.Null(fetched);
+        Assert.NotNull(archived);
+        Assert.Equal("Groceries Updated", archived!.Name);
+        Assert.Equal(5, archived.SortOrder);
+        Assert.True(archived.IsArchived);
     }
 
     [Fact(DisplayName = "DeleteAsync deletes category")]
@@ -161,8 +163,11 @@ public sealed class CategoryRepositoryTests : IAsyncLifetime
         await repository.DeleteAsync(category.Id);
 
         var fetched = await repository.GetAsync(category.Id);
+        var archived = await context.Categories.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == category.Id);
 
         Assert.Null(fetched);
+        Assert.NotNull(archived);
+        Assert.True(archived!.IsArchived);
     }
 
     // Helper function

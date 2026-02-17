@@ -11,6 +11,7 @@ public sealed class Transaction
     public string Note { get; set; } = string.Empty;
     public string? Merchant { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public bool IsArchived { get; set; }
 
     public Account? Account { get; set; }
     public Category? Category { get; set; }

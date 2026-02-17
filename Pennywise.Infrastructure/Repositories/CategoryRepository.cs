@@ -25,6 +25,7 @@ public sealed class CategoryRepository : ICategoryRepository
     {
         return await _dbContext.Categories
             .AsNoTracking()
+            .Where(category => !category.IsArchived)
             .OrderBy(category => category.SortOrder)
             .ThenBy(category => category.Name)
             .ToListAsync(cancellationToken);
@@ -44,13 +45,15 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+        var category = await _dbContext.Categories
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         if (category is null)
         {
             return;
         }
 
-        _dbContext.Categories.Remove(category);
+        category.IsArchived = true;
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

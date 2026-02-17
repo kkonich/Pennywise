@@ -6,6 +6,7 @@ public sealed class Account
     public string Name { get; set; } = string.Empty;
     public decimal Balance { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public bool IsArchived { get; set; }
 
     public List<Transaction> Transactions { get; set; } = new();
 }

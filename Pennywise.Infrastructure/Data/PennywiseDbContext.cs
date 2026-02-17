@@ -22,12 +22,14 @@ public sealed class PennywiseDbContext : DbContext
             entity.HasKey(account => account.Id);
             entity.Property(account => account.Name).HasMaxLength(200);
             entity.Property(account => account.Balance).HasPrecision(18, 2);
+            entity.HasQueryFilter(account => !account.IsArchived);
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(category => category.Id);
             entity.ToTable("Category");
+            entity.HasQueryFilter(category => !category.IsArchived);
         });
 
         modelBuilder.Entity<UserSettings>(entity =>
@@ -43,6 +45,7 @@ public sealed class PennywiseDbContext : DbContext
             entity.HasKey(transaction => transaction.Id);
             entity.ToTable("Transaction");
             entity.HasIndex(transaction => new { transaction.BookedOn, transaction.CreatedAt });
+            entity.HasQueryFilter(transaction => !transaction.IsArchived);
 
             entity.HasOne(transaction => transaction.Account)
                 .WithMany(account => account.Transactions)

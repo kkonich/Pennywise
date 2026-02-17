@@ -136,10 +136,13 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
         await repository.AddAsync(account);
     
         await repository.DeleteAsync(account.Id);
-    
+
         var fetched = await repository.GetAsync(account.Id);
-    
+        var archived = await context.Accounts.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Id == account.Id);
+
         Assert.Null(fetched);
+        Assert.NotNull(archived);
+        Assert.True(archived!.IsArchived);
     }
 
     [Fact(DisplayName = "DeleteAsync deletes related transactions")]
@@ -185,8 +188,11 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
 
         await repository.DeleteAsync(accountId);
 
-        var transactionCount = await context.Transactions.CountAsync();
-        Assert.Equal(0, transactionCount);
+        var transactionCountVisible = await context.Transactions.CountAsync();
+        var archivedTransactions = await context.Transactions.IgnoreQueryFilters().ToListAsync();
+
+        Assert.Equal(0, transactionCountVisible);
+        Assert.All(archivedTransactions, t => Assert.True(t.IsArchived));
     }
 
     // Helper function

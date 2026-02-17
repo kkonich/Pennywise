@@ -29,6 +29,7 @@ public sealed class TransactionRepository : ITransactionRepository
     {
         var query = _dbContext.Transactions
             .AsNoTracking()
+            .Where(t => !t.IsArchived)
             .AsQueryable();
 
         if (filter?.AccountId is not null)
@@ -91,6 +92,7 @@ public sealed class TransactionRepository : ITransactionRepository
     {
         return await _dbContext.Transactions
             .AsNoTracking()
+            .Where(transaction => !transaction.IsArchived)
             .Where(transaction => transaction.AccountId == accountId)
             .OrderByDescending(transaction => transaction.BookedOn)
             .ThenByDescending(transaction => transaction.CreatedAt)
@@ -111,13 +113,15 @@ public sealed class TransactionRepository : ITransactionRepository
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        var transaction = await _dbContext.Transactions
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         if (transaction is null)
         {
             return;
         }
 
-        _dbContext.Transactions.Remove(transaction);
+        transaction.IsArchived = true;
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

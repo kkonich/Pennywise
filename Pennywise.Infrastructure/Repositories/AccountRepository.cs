@@ -25,6 +25,7 @@ public sealed class AccountRepository : IAccountRepository
     {
         return await _dbContext.Accounts
             .AsNoTracking()
+            .Where(account => !account.IsArchived)
             .OrderBy(account => account.Name)
             .ToListAsync(cancellationToken);
     }
@@ -43,13 +44,26 @@ public sealed class AccountRepository : IAccountRepository
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+        var account = await _dbContext.Accounts
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         if (account is null)
         {
             return;
         }
 
-        _dbContext.Accounts.Remove(account);
+        account.IsArchived = true;
+
+        var transactions = await _dbContext.Transactions
+            .IgnoreQueryFilters()
+            .Where(t => t.AccountId == id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var transaction in transactions)
+        {
+            transaction.IsArchived = true;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

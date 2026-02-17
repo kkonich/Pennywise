@@ -283,8 +283,11 @@ public sealed class TransactionRepositoryTests : IAsyncLifetime
         await repository.DeleteAsync(transaction.Id);
 
         var fetched = await repository.GetAsync(transaction.Id);
+        var archived = await context.Transactions.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == transaction.Id);
 
         Assert.Null(fetched);
+        Assert.NotNull(archived);
+        Assert.True(archived!.IsArchived);
     }
 
     [Fact(DisplayName = "GetPagedAsync applies filters")]
