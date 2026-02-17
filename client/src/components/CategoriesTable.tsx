@@ -4,6 +4,7 @@ import type { TableColumnsType } from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CategoryFilterDraft } from '../hooks/useCategoriesTableData'
+import { UNCATEGORIZED_CATEGORY_ID } from '../constants/system'
 import type { CategoryCreateRequest, CategoryDto, CategoryUpdateRequest } from '../types/category'
 
 type CategoriesTableProps = {
@@ -90,6 +91,8 @@ export function CategoriesTable({
         dataIndex: 'name',
         key: 'name',
         sorter: (a, b) => a.name.localeCompare(b.name, locale),
+        render: (_value, record) =>
+          record.id === UNCATEGORIZED_CATEGORY_ID ? t('categories.uncategorized') : record.name,
       },
       {
         title: t('transactions.columns.type'),
@@ -170,6 +173,9 @@ export function CategoriesTable({
         align: 'right',
         width: 96,
         render: (_value, record) => {
+          if (record.id === UNCATEGORIZED_CATEGORY_ID) {
+            return null
+          }
           const isSelected = record.id === selectedRowId
           return (
             <Space size={4} className={isSelected ? 'categories-row-actions is-visible' : 'categories-row-actions'}>

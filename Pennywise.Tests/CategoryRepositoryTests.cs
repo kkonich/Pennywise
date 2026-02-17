@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Pennywise.Domain.Entities;
@@ -148,6 +149,22 @@ public sealed class CategoryRepositoryTests : IAsyncLifetime
         await using var context = await CreateNewContextAsync();
         var repository = new CategoryRepository(context);
 
+        var uncategorized = await context.Categories.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(c => c.Id == CategoryDefaults.UncategorizedId);
+        if (uncategorized is null)
+        {
+            context.Categories.Add(new Category
+            {
+                Id = CategoryDefaults.UncategorizedId,
+                Name = CategoryDefaults.UncategorizedName,
+                Type = CategoryType.Expense,
+                SortOrder = 0,
+                IsArchived = false,
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+            await context.SaveChangesAsync();
+        }
+
         var category = new Category
         {
             Id = Guid.NewGuid(),
@@ -159,15 +176,42 @@ public sealed class CategoryRepositoryTests : IAsyncLifetime
         };
 
         await repository.AddAsync(category);
+        var accountId = Guid.NewGuid();
+        await context.Accounts.AddAsync(new Account
+        {
+            Id = accountId,
+            Name = "Main",
+            Balance = 0m,
+            CreatedAt = DateTimeOffset.UtcNow,
+            IsArchived = false
+        });
+
+        await context.Transactions.AddAsync(new Transaction
+        {
+            Id = Guid.NewGuid(),
+            AccountId = accountId,
+            CategoryId = category.Id,
+            Type = TransactionType.Expense,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = 10m,
+            Note = "To move",
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
 
         await repository.DeleteAsync(category.Id);
 
         var fetched = await repository.GetAsync(category.Id);
         var archived = await context.Categories.IgnoreQueryFilters().FirstOrDefaultAsync(c => c.Id == category.Id);
+        var movedTransactions = await context.Transactions.IgnoreQueryFilters()
+            .Where(t => t.CategoryId == CategoryDefaults.UncategorizedId)
+            .ToListAsync();
 
         Assert.Null(fetched);
         Assert.NotNull(archived);
         Assert.True(archived!.IsArchived);
+        Assert.NotEmpty(movedTransactions);
+        Assert.All(movedTransactions, t => Assert.Equal(CategoryDefaults.UncategorizedId, t.CategoryId));
     }
 
     // Helper function

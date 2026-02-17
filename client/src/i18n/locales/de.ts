@@ -77,6 +77,7 @@ const de = {
     categories: {
       title: 'Kategorien',
       empty: 'Keine Kategorien vorhanden.',
+      uncategorized: 'Ohne Kategorie',
       columns: {
         name: 'Name',
         finances: 'Finanzen',

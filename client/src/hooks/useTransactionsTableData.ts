@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { fetchAccounts } from '../api/accountsApi'
 import { fetchCategories } from '../api/categoriesApi'
 import { createTransaction, deleteTransaction, fetchTransactionsPage, updateTransaction } from '../api/transactionsApi'
+import { UNCATEGORIZED_CATEGORY_ID } from '../constants/system'
 import type { TransactionItem } from '../components/TransactionsTable'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
@@ -275,6 +276,10 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
       rawItems.map((transaction) => {
         const account = accountsById.get(transaction.accountId)
         const category = categoriesById.get(transaction.categoryId)
+        const categoryName =
+          transaction.categoryId === UNCATEGORIZED_CATEGORY_ID
+            ? t('categories.uncategorized')
+            : category?.name ?? t('transactions.fallback.unknownCategory')
 
         return {
           id: transaction.id,
@@ -282,7 +287,7 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
           categoryId: transaction.categoryId,
           note: transaction.note,
           account: account?.name ?? t('transactions.fallback.unknownAccount'),
-          category: category?.name ?? t('transactions.fallback.unknownCategory'),
+          category: categoryName,
           bookedOn: transaction.bookedOn,
           quantity: transaction.amount,
           type: transaction.type,

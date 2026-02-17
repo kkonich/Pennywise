@@ -77,6 +77,7 @@ const en = {
     categories: {
       title: 'Categories',
       empty: 'No categories available.',
+      uncategorized: 'Uncategorized',
       columns: {
         name: 'Name',
         finances: 'Finances',

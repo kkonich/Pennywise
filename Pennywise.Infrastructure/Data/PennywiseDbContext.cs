@@ -55,7 +55,7 @@ public sealed class PennywiseDbContext : DbContext
             entity.HasOne(transaction => transaction.Category)
                 .WithMany(category => category.Transactions)
                 .HasForeignKey(transaction => transaction.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

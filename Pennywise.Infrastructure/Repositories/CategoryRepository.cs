@@ -45,6 +45,11 @@ public sealed class CategoryRepository : ICategoryRepository
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        if (id == CategoryDefaults.UncategorizedId)
+        {
+            return;
+        }
+
         var category = await _dbContext.Categories
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
@@ -53,7 +58,45 @@ public sealed class CategoryRepository : ICategoryRepository
             return;
         }
 
+        var uncategorized = await EnsureUncategorizedAsync(cancellationToken);
+
+        var transactions = await _dbContext.Transactions
+            .IgnoreQueryFilters()
+            .Where(t => t.CategoryId == id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var transaction in transactions)
+        {
+            transaction.CategoryId = uncategorized.Id;
+        }
+
         category.IsArchived = true;
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<Category> EnsureUncategorizedAsync(CancellationToken cancellationToken)
+    {
+        var existing = await _dbContext.Categories
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(c => c.Id == CategoryDefaults.UncategorizedId, cancellationToken);
+
+        if (existing is not null)
+        {
+            existing.IsArchived = false;
+            return existing;
+        }
+
+        var category = new Category
+        {
+            Id = CategoryDefaults.UncategorizedId,
+            Name = CategoryDefaults.UncategorizedName,
+            Type = CategoryType.Expense,
+            SortOrder = 0,
+            IsArchived = false,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        _dbContext.Categories.Add(category);
+        return category;
     }
 }

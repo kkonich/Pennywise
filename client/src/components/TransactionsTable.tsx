@@ -24,6 +24,7 @@ import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
 import type { TransactionCreateRequest, TransactionType, TransactionUpdateRequest } from '../types/transaction'
+import { UNCATEGORIZED_CATEGORY_ID } from '../constants/system'
 
 export type TransactionItem = {
   id: string
@@ -132,6 +133,14 @@ export function TransactionsTable({
     [accounts],
   )
   const categoriesById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories])
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        value: category.id,
+        label: category.id === UNCATEGORIZED_CATEGORY_ID ? t('categories.uncategorized') : category.name,
+      })),
+    [categories, t],
+  )
   const cardTitle = title ?? t('transactions.titleLatest')
   const amountRules = useMemo(
     () => [
@@ -452,7 +461,7 @@ export function TransactionsTable({
             allowClear
             placeholder={t('transactions.filters.category')}
             value={filters.categoryId}
-            options={categories.map((category) => ({ value: category.id, label: category.name }))}
+            options={categoryOptions}
             onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
             open={openPopup.category}
             onOpenChange={(isOpen) => setPopupOpen('category', isOpen)}
@@ -579,7 +588,7 @@ export function TransactionsTable({
           </Form.Item>
           <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
             <Select
-              options={categories.map((category) => ({ value: category.id, label: category.name }))}
+              options={categoryOptions}
               onChange={(value) => {
                 const category = categoriesById.get(value)
                 if (category) {
@@ -659,7 +668,7 @@ export function TransactionsTable({
           </Form.Item>
           <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
             <Select
-              options={categories.map((category) => ({ value: category.id, label: category.name }))}
+              options={categoryOptions}
               onChange={(value) => {
                 const category = categoriesById.get(value)
                 if (category) {
