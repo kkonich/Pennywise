@@ -102,7 +102,7 @@ export function AccountsTable({
         key: 'balance',
         align: 'right',
         sorter: (a, b) => a.balance - b.balance,
-        render: (value: number, record: AccountDto) => (
+        render: (value: number) => (
           <Typography.Text strong className="account-balance">
             {formatCurrency(value, locale, currencyCode)}
           </Typography.Text>

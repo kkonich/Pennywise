@@ -28,6 +28,7 @@ public sealed class TransactionsControllerPaginationTests
                 Id = Guid.NewGuid(),
                 AccountId = Guid.NewGuid(),
                 CategoryId = Guid.NewGuid(),
+                Type = TransactionType.Expense,
                 BookedOn = new DateOnly(2026, 1, 12),
                 Amount = 19.99m,
                 Note = "Groceries",
@@ -39,6 +40,7 @@ public sealed class TransactionsControllerPaginationTests
                 Id = Guid.NewGuid(),
                 AccountId = Guid.NewGuid(),
                 CategoryId = Guid.NewGuid(),
+                Type = TransactionType.Income,
                 BookedOn = new DateOnly(2026, 1, 11),
                 Amount = 3.50m,
                 Note = "Coffee",
@@ -67,6 +69,8 @@ public sealed class TransactionsControllerPaginationTests
         Assert.Equal(2, response.Items.Count);
         Assert.Equal(transactions[0].Id, response.Items[0].Id);
         Assert.Equal(transactions[1].Id, response.Items[1].Id);
+        Assert.Equal(transactions[0].Type, response.Items[0].Type);
+        Assert.Equal(transactions[1].Type, response.Items[1].Type);
     }
 
     [Fact(DisplayName = "GetAll returns 400 when page is less than 1")]

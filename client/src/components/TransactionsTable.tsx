@@ -1,6 +1,7 @@
 import {
   Button,
   Card,
+  Checkbox,
   DatePicker,
   Form,
   Input,
@@ -10,6 +11,7 @@ import {
   Select,
   Space,
   Table,
+  Tag,
   Typography,
   message,
 } from 'antd'
@@ -21,7 +23,7 @@ import { useTranslation } from 'react-i18next'
 import type { TransactionFilterDraft } from '../hooks/useTransactionsTableData'
 import type { AccountDto } from '../types/account'
 import type { CategoryDto } from '../types/category'
-import type { TransactionCreateRequest, TransactionUpdateRequest } from '../types/transaction'
+import type { TransactionCreateRequest, TransactionType, TransactionUpdateRequest } from '../types/transaction'
 
 export type TransactionItem = {
   id: string
@@ -32,6 +34,7 @@ export type TransactionItem = {
   category: string
   bookedOn: string
   quantity: number
+  type: TransactionType
   merchant: string
   merchantValue?: string
 }
@@ -86,6 +89,7 @@ type TransactionFormValues = {
   bookedOn: dayjs.Dayjs
   amount: number
   merchant?: string
+  type: TransactionType
 }
 
 export function TransactionsTable({
@@ -127,6 +131,7 @@ export function TransactionsTable({
     () => accounts.map((account) => ({ value: account.id, label: account.name })),
     [accounts],
   )
+  const categoriesById = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories])
   const cardTitle = title ?? t('transactions.titleLatest')
   const amountRules = useMemo(
     () => [
@@ -163,6 +168,58 @@ export function TransactionsTable({
         sorter: (a, b) => a.category.localeCompare(b.category, locale),
       },
       {
+        title: t('transactions.columns.type'),
+        dataIndex: 'type',
+        key: 'type',
+        onFilter: (value, record) => record.type === (value as TransactionType),
+        filterDropdown: (filterState) => {
+          const selectedTypeKeys = filterState.selectedKeys.filter(
+            (key): key is TransactionType => key === 'Expense' || key === 'Income',
+          )
+
+          function onTypeSelectionChange(typeKey: TransactionType, isChecked: boolean) {
+            const nextSelectedTypeKeys = isChecked
+              ? Array.from(new Set([...selectedTypeKeys, typeKey]))
+              : selectedTypeKeys.filter((selectedTypeKey) => selectedTypeKey !== typeKey)
+
+            filterState.setSelectedKeys(nextSelectedTypeKeys)
+            filterState.confirm({ closeDropdown: false })
+          }
+
+          return (
+            <Space orientation="vertical" size={8} style={{ padding: 8 }}>
+              <Checkbox
+                checked={selectedTypeKeys.includes('Expense')}
+                onChange={(event) => {
+                  onTypeSelectionChange('Expense', event.target.checked)
+                }}
+              >
+                {t('transactions.type.expense')}
+              </Checkbox>
+              <Checkbox
+                checked={selectedTypeKeys.includes('Income')}
+                onChange={(event) => {
+                  onTypeSelectionChange('Income', event.target.checked)
+                }}
+              >
+                {t('transactions.type.income')}
+              </Checkbox>
+            </Space>
+          )
+        },
+        render: (value: TransactionType) => (
+          <Tag
+            className={
+              value === 'Income'
+                ? 'transaction-type-tag transaction-type-tag-income'
+                : 'transaction-type-tag transaction-type-tag-expense'
+            }
+          >
+            {t(`transactions.type.${value.toLowerCase() as 'income' | 'expense'}`)}
+          </Tag>
+        ),
+      },
+      {
         title: t('transactions.columns.bookedOn'),
         dataIndex: 'bookedOn',
         key: 'bookedOn',
@@ -177,13 +234,11 @@ export function TransactionsTable({
         sorter: (a, b) => a.quantity - b.quantity,
         render: (value: number, record: TransactionItem) => {
           const absValue = Math.abs(value)
-          const prefix = value > 0 ? '+' : value < 0 ? '-' : ''
-          const amountClassName =
-            value > 0
-              ? 'transaction-amount transaction-amount-positive'
-              : value < 0
-                ? 'transaction-amount transaction-amount-negative'
-                : 'transaction-amount'
+          const isIncome = record.type === 'Income'
+          const prefix = isIncome ? '+' : '-'
+          const amountClassName = isIncome
+            ? 'transaction-amount transaction-amount-positive'
+            : 'transaction-amount transaction-amount-negative'
           return (
             <Typography.Text strong className={amountClassName}>
               {prefix}
@@ -218,6 +273,7 @@ export function TransactionsTable({
                     note: record.note,
                     accountId: record.accountId,
                     categoryId: record.categoryId,
+                    type: record.type,
                     bookedOn: dayjs(record.bookedOn),
                     amount: record.quantity,
                     merchant: record.merchantValue,
@@ -276,11 +332,13 @@ export function TransactionsTable({
   function openCreateModal() {
     const initialAccountId = accounts[0]?.id
     const initialCategoryId = categories[0]?.id
+    const initialType = initialCategoryId ? categoriesById.get(initialCategoryId)?.type ?? 'Expense' : 'Expense'
 
     createForm.setFieldsValue({
       note: '',
       accountId: initialAccountId,
       categoryId: initialCategoryId,
+      type: initialType,
       bookedOn: dayjs(),
       merchant: undefined,
     })
@@ -301,6 +359,7 @@ export function TransactionsTable({
       await onCreateTransaction({
         accountId: values.accountId,
         categoryId: values.categoryId,
+        type: values.type,
         bookedOn: values.bookedOn.format('YYYY-MM-DD'),
         amount: values.amount,
         note: values.note.trim(),
@@ -325,6 +384,7 @@ export function TransactionsTable({
       await onUpdateTransaction(editingTransaction.id, {
         accountId: values.accountId,
         categoryId: values.categoryId,
+        type: values.type,
         bookedOn: values.bookedOn.format('YYYY-MM-DD'),
         amount: values.amount,
         note: values.note.trim(),
@@ -396,6 +456,16 @@ export function TransactionsTable({
             onChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
             open={openPopup.category}
             onOpenChange={(isOpen) => setPopupOpen('category', isOpen)}
+          />
+          <Select<TransactionType>
+            allowClear
+            placeholder={t('transactions.filters.type')}
+            value={filters.type}
+            options={[
+              { value: 'Expense', label: t('transactions.type.expense') },
+              { value: 'Income', label: t('transactions.type.income') },
+            ]}
+            onChange={(value) => onFiltersChange({ ...filters, type: value ?? undefined })}
           />
           <DatePicker
             placeholder={t('transactions.filters.bookedFrom')}
@@ -508,7 +578,23 @@ export function TransactionsTable({
             <Select options={accountOptions} />
           </Form.Item>
           <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
-            <Select options={categories.map((category) => ({ value: category.id, label: category.name }))} />
+            <Select
+              options={categories.map((category) => ({ value: category.id, label: category.name }))}
+              onChange={(value) => {
+                const category = categoriesById.get(value)
+                if (category) {
+                  createForm.setFieldValue('type', category.type)
+                }
+              }}
+            />
+          </Form.Item>
+          <Form.Item name="type" label={t('transactions.columns.type')} rules={[{ required: true }]}>
+            <Select<TransactionType>
+              options={[
+                { value: 'Expense', label: t('transactions.type.expense') },
+                { value: 'Income', label: t('transactions.type.income') },
+              ]}
+            />
           </Form.Item>
           <Form.Item name="bookedOn" label={t('transactions.columns.bookedOn')} rules={[{ required: true }]}>
             <DatePicker format={dateInputFormat} style={{ width: '100%' }} />
@@ -572,7 +658,23 @@ export function TransactionsTable({
             <Select options={accountOptions} />
           </Form.Item>
           <Form.Item name="categoryId" label={t('transactions.columns.category')} rules={[{ required: true }]}>
-            <Select options={categories.map((category) => ({ value: category.id, label: category.name }))} />
+            <Select
+              options={categories.map((category) => ({ value: category.id, label: category.name }))}
+              onChange={(value) => {
+                const category = categoriesById.get(value)
+                if (category) {
+                  editForm.setFieldValue('type', category.type)
+                }
+              }}
+            />
+          </Form.Item>
+          <Form.Item name="type" label={t('transactions.columns.type')} rules={[{ required: true }]}>
+            <Select<TransactionType>
+              options={[
+                { value: 'Expense', label: t('transactions.type.expense') },
+                { value: 'Income', label: t('transactions.type.income') },
+              ]}
+            />
           </Form.Item>
           <Form.Item name="bookedOn" label={t('transactions.columns.bookedOn')} rules={[{ required: true }]}>
             <DatePicker format={dateInputFormat} style={{ width: '100%' }} />

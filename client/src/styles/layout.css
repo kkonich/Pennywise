@@ -41,3 +41,38 @@ body {
   border-radius: 14px;
   background: transparent;
 }
+
+.ant-table-filter-dropdown {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid var(--color-control-border);
+}
+
+.ant-table-filter-dropdown .ant-dropdown-menu,
+.ant-table-filter-dropdown .ant-dropdown-menu-root,
+.ant-table-filter-dropdown .ant-table-filter-dropdown-btns {
+  background: var(--color-surface-elevated) !important;
+}
+
+.ant-table-filter-dropdown .ant-table-filter-dropdown-btns {
+  display: none;
+}
+
+.ant-table-filter-dropdown .ant-dropdown-menu-item {
+  color: var(--color-text-secondary);
+}
+
+.ant-table-filter-dropdown .ant-dropdown-menu-item:hover {
+  background: var(--color-control-bg-hover) !important;
+  color: var(--color-text-primary);
+}
+
+.ant-table-filter-dropdown .ant-dropdown-menu-item-selected,
+.ant-table-filter-dropdown .ant-dropdown-menu-item-selected:hover {
+  background: var(--color-menu-active-bg) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-table-filter-dropdown .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--color-menu-active-bg);
+  border-color: var(--color-control-border-hover);
+}

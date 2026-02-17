@@ -28,6 +28,10 @@ export function fetchTransactionsPage(params: FetchTransactionsPageParams): Prom
     query.set('categoryId', params.filters.categoryId)
   }
 
+  if (params.filters?.type) {
+    query.set('type', params.filters.type)
+  }
+
   if (params.filters?.bookedFrom) {
     query.set('bookedFrom', params.filters.bookedFrom)
   }

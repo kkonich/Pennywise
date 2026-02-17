@@ -1,7 +1,10 @@
+export type TransactionType = 'Expense' | 'Income'
+
 export type TransactionDto = {
   id: string
   accountId: string
   categoryId: string
+  type: TransactionType
   bookedOn: string
   amount: number
   note: string
@@ -19,6 +22,7 @@ export type TransactionPageDto = {
 export type TransactionFilters = {
   accountId?: string
   categoryId?: string
+  type?: TransactionType
   bookedFrom?: string
   bookedTo?: string
   minAmount?: number
@@ -29,6 +33,7 @@ export type TransactionFilters = {
 export type TransactionUpdateRequest = {
   accountId: string
   categoryId: string
+  type?: TransactionType
   bookedOn: string
   amount: number
   note: string

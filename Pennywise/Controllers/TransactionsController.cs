@@ -41,6 +41,7 @@ public sealed class TransactionsController : ControllerBase
         [FromQuery] int pageSize = 25,
         [FromQuery] Guid? accountId = null,
         [FromQuery] Guid? categoryId = null,
+        [FromQuery] TransactionType? type = null,
         [FromQuery] DateOnly? bookedFrom = null,
         [FromQuery] DateOnly? bookedTo = null,
         [FromQuery] decimal? minAmount = null,
@@ -72,6 +73,7 @@ public sealed class TransactionsController : ControllerBase
         {
             AccountId = accountId,
             CategoryId = categoryId,
+            Type = type,
             BookedFrom = bookedFrom,
             BookedTo = bookedTo,
             MinAmount = minAmount,
@@ -132,11 +134,23 @@ public sealed class TransactionsController : ControllerBase
             return referenceError;
         }
 
+        var category = await _categoryRepository.GetAsync(request.CategoryId, cancellationToken);
+        if (category is null)
+        {
+            return ValidationProblem(new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                [nameof(TransactionCreateRequest.CategoryId)] = ["Referenced category was not found."]
+            }));
+        }
+
+        var resolvedType = request.Type ?? (TransactionType)category.Type;
+
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
             AccountId = request.AccountId,
             CategoryId = request.CategoryId,
+            Type = resolvedType,
             BookedOn = request.BookedOn,
             Amount = request.Amount,
             Note = request.Note,
@@ -168,8 +182,20 @@ public sealed class TransactionsController : ControllerBase
             return referenceError;
         }
 
+        var category = await _categoryRepository.GetAsync(request.CategoryId, cancellationToken);
+        if (category is null)
+        {
+            return ValidationProblem(new ValidationProblemDetails(new Dictionary<string, string[]>
+            {
+                [nameof(TransactionUpdateRequest.CategoryId)] = ["Referenced category was not found."]
+            }));
+        }
+
+        var resolvedType = request.Type ?? (TransactionType)category.Type;
+
         transaction.AccountId = request.AccountId;
         transaction.CategoryId = request.CategoryId;
+        transaction.Type = resolvedType;
         transaction.BookedOn = request.BookedOn;
         transaction.Amount = request.Amount;
         transaction.Note = request.Note;
@@ -202,6 +228,7 @@ public sealed class TransactionsController : ControllerBase
             Id = transaction.Id,
             AccountId = transaction.AccountId,
             CategoryId = transaction.CategoryId,
+            Type = transaction.Type,
             BookedOn = transaction.BookedOn,
             Amount = transaction.Amount,
             Note = transaction.Note,

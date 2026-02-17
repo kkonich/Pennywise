@@ -57,6 +57,25 @@
   color: var(--color-transaction-amount);
 }
 
+.categories-table .category-type-tag.ant-tag {
+  margin-inline-end: 0;
+  padding-inline: 8px;
+  border-radius: var(--radius-control);
+  font-weight: 500;
+}
+
+.categories-table .category-type-tag-income.ant-tag {
+  color: var(--color-transaction-amount-positive);
+  background: var(--color-alert-success-bg);
+  border-color: var(--color-alert-success-border);
+}
+
+.categories-table .category-type-tag-expense.ant-tag {
+  color: var(--color-transaction-amount-negative);
+  background: var(--color-alert-error-bg);
+  border-color: var(--color-alert-error-border);
+}
+
 .categories-edit-modal .ant-form-item-required::before {
   color: var(--color-required-mark) !important;
 }

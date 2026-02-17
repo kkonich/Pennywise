@@ -1,3 +1,5 @@
+using Pennywise.Domain.Entities;
+
 namespace Pennywise.Application.Interfaces;
 
 public sealed class TransactionPageFilter
@@ -9,4 +11,5 @@ public sealed class TransactionPageFilter
     public decimal? MinAmount { get; init; }
     public decimal? MaxAmount { get; init; }
     public string? SearchTerm { get; init; }
+    public TransactionType? Type { get; init; }
 }

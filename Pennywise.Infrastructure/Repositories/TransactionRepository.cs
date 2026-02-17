@@ -41,6 +41,11 @@ public sealed class TransactionRepository : ITransactionRepository
             query = query.Where(transaction => transaction.CategoryId == filter.CategoryId);
         }
 
+        if (filter?.Type is not null)
+        {
+            query = query.Where(transaction => transaction.Type == filter.Type);
+        }
+
         if (filter?.BookedFrom is not null)
         {
             query = query.Where(transaction => transaction.BookedOn >= filter.BookedFrom);

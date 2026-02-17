@@ -12,12 +12,14 @@ import type {
   TransactionDto,
   TransactionFilters,
   TransactionPageDto,
+  TransactionType,
   TransactionUpdateRequest,
 } from '../types/transaction'
 
 export type TransactionFilterDraft = {
   accountId?: string
   categoryId?: string
+  type?: TransactionType
   bookedFrom?: string
   bookedTo?: string
   minAmount?: string
@@ -50,6 +52,7 @@ type UseTransactionsTableDataResult = {
 const emptyDraftFilters: TransactionFilterDraft = {
   accountId: undefined,
   categoryId: undefined,
+  type: undefined,
   bookedFrom: undefined,
   bookedTo: undefined,
   minAmount: undefined,
@@ -60,7 +63,16 @@ const emptyAccounts: AccountDto[] = []
 const emptyCategories: CategoryDto[] = []
 const emptyTransactionItems: TransactionDto[] = []
 
-type TransactionsSnapshot = Array<[readonly unknown[], TransactionPageDto | undefined]>
+type TransactionQueryData = TransactionPageDto | TransactionDto[]
+type TransactionsSnapshot = Array<[readonly unknown[], TransactionQueryData | undefined]>
+
+function isTransactionPageData(data: TransactionQueryData | undefined): data is TransactionPageDto {
+  if (!data || Array.isArray(data)) {
+    return false
+  }
+
+  return Array.isArray(data.items)
+}
 
 function toTrimmedString(value: string | undefined): string | undefined {
   if (!value) {
@@ -84,6 +96,7 @@ function normalizeDraftFilters(draft: TransactionFilterDraft): TransactionFilter
   return {
     accountId: draft.accountId,
     categoryId: draft.categoryId,
+    type: draft.type,
     bookedFrom: draft.bookedFrom,
     bookedTo: draft.bookedTo,
     minAmount: toNumber(draft.minAmount),
@@ -137,12 +150,12 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onMutate: async ({ id, request }) => {
       await queryClient.cancelQueries({ queryKey: ['transactions'] })
 
-      const previousQueries = queryClient.getQueriesData<TransactionPageDto>({
+      const previousQueries = queryClient.getQueriesData<TransactionQueryData>({
         queryKey: ['transactions'],
       })
 
-      queryClient.setQueriesData<TransactionPageDto>({ queryKey: ['transactions'] }, (current) => {
-        if (!current) {
+      queryClient.setQueriesData<TransactionQueryData>({ queryKey: ['transactions'] }, (current) => {
+        if (!isTransactionPageData(current)) {
           return current
         }
 
@@ -158,6 +171,7 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
             ...item,
             accountId: request.accountId,
             categoryId: request.categoryId,
+            type: request.type ?? item.type,
             bookedOn: request.bookedOn,
             amount: request.amount,
             note: request.note,
@@ -209,12 +223,12 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['transactions'] })
 
-      const previousQueries = queryClient.getQueriesData<TransactionPageDto>({
+      const previousQueries = queryClient.getQueriesData<TransactionQueryData>({
         queryKey: ['transactions'],
       })
 
-      queryClient.setQueriesData<TransactionPageDto>({ queryKey: ['transactions'] }, (current) => {
-        if (!current) {
+      queryClient.setQueriesData<TransactionQueryData>({ queryKey: ['transactions'] }, (current) => {
+        if (!isTransactionPageData(current)) {
           return current
         }
 
@@ -271,6 +285,7 @@ export function useTransactionsTableData(): UseTransactionsTableDataResult {
           category: category?.name ?? t('transactions.fallback.unknownCategory'),
           bookedOn: transaction.bookedOn,
           quantity: transaction.amount,
+          type: transaction.type,
           merchant: transaction.merchant?.trim() ? transaction.merchant : '-',
           merchantValue: transaction.merchant?.trim() ? transaction.merchant.trim() : undefined,
         }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Pennywise.Domain.Entities;
 
 namespace Pennywise.Contracts.Transactions;
 
@@ -16,6 +17,11 @@ public sealed class TransactionUpdateRequest : IValidatableObject
     /// Updated related category identifier.
     /// </summary>
     public Guid CategoryId { get; set; }
+
+    /// <summary>
+    /// Updated transaction type (Income or Expense). Defaults to the category's type when omitted.
+    /// </summary>
+    public TransactionType? Type { get; set; }
 
     /// <summary>
     /// Updated booking date of the transaction.
@@ -47,6 +53,11 @@ public sealed class TransactionUpdateRequest : IValidatableObject
         if (CategoryId == Guid.Empty)
         {
             yield return new ValidationResult("CategoryId is required.", [nameof(CategoryId)]);
+        }
+
+        if (Type.HasValue && !Enum.IsDefined(typeof(TransactionType), Type.Value))
+        {
+            yield return new ValidationResult("Type is required and must be either Income or Expense.", [nameof(Type)]);
         }
 
         if (BookedOn == default)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Pennywise.Contracts.Transactions;
+using Pennywise.Domain.Entities;
 using Xunit;
 
 namespace Pennywise.Tests;
@@ -42,6 +43,7 @@ public sealed class TransactionRequestValidationTests
         {
             AccountId = Guid.NewGuid(),
             CategoryId = Guid.NewGuid(),
+            Type = TransactionType.Expense,
             BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 123.45m,
             Note = string.Empty
@@ -50,6 +52,42 @@ public sealed class TransactionRequestValidationTests
         var errors = Validate(request);
 
         Assert.Empty(errors);
+    }
+
+    [Fact(DisplayName = "TransactionCreateRequest accepts null type and uses defaults")]
+    public void CreateRequest_without_type_is_valid()
+    {
+        var request = new TransactionCreateRequest
+        {
+            AccountId = Guid.NewGuid(),
+            CategoryId = Guid.NewGuid(),
+            Type = null,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = 10m,
+            Note = "No type"
+        };
+
+        var errors = Validate(request);
+
+        Assert.Empty(errors);
+    }
+
+    [Fact(DisplayName = "TransactionCreateRequest rejects invalid type")]
+    public void CreateRequest_with_invalid_type_returns_error()
+    {
+        var request = new TransactionCreateRequest
+        {
+            AccountId = Guid.NewGuid(),
+            CategoryId = Guid.NewGuid(),
+            Type = (TransactionType)999,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            Amount = 10m,
+            Note = "Coffee"
+        };
+
+        var errors = Validate(request);
+
+        Assert.Contains(errors, e => e.MemberNames.Contains(nameof(TransactionCreateRequest.Type)));
     }
 
     private static List<ValidationResult> Validate(object instance)

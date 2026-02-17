@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Card, Form, Input, Modal, Pagination, Space, Table, Typography, message } from 'antd'
+import { Button, Card, Checkbox, Form, Input, Modal, Pagination, Select, Space, Table, Tag, Typography, message } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -30,13 +30,13 @@ type CategoriesTableProps = {
 
 type CategoryFormValues = {
   name: string
+  type: 'Expense' | 'Income'
 }
 
 function formatMoney(value: number, locale: string, currencyCode: string): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currencyCode,
-    currencyDisplay: 'code',
   }).format(value)
 }
 
@@ -92,6 +92,58 @@ export function CategoriesTable({
         sorter: (a, b) => a.name.localeCompare(b.name, locale),
       },
       {
+        title: t('transactions.columns.type'),
+        dataIndex: 'type',
+        key: 'type',
+        onFilter: (value, record) => record.type === value,
+        filterDropdown: (filterState) => {
+          const selectedTypeKeys = filterState.selectedKeys.filter(
+            (key): key is CategoryDto['type'] => key === 'Expense' || key === 'Income',
+          )
+
+          function onTypeSelectionChange(typeKey: CategoryDto['type'], isChecked: boolean) {
+            const nextSelectedTypeKeys = isChecked
+              ? Array.from(new Set([...selectedTypeKeys, typeKey]))
+              : selectedTypeKeys.filter((selectedTypeKey) => selectedTypeKey !== typeKey)
+
+            filterState.setSelectedKeys(nextSelectedTypeKeys)
+            filterState.confirm({ closeDropdown: false })
+          }
+
+          return (
+            <Space direction="vertical" size={8} style={{ padding: 8 }}>
+              <Checkbox
+                checked={selectedTypeKeys.includes('Expense')}
+                onChange={(event) => {
+                  onTypeSelectionChange('Expense', event.target.checked)
+                }}
+              >
+                {t('transactions.type.expense')}
+              </Checkbox>
+              <Checkbox
+                checked={selectedTypeKeys.includes('Income')}
+                onChange={(event) => {
+                  onTypeSelectionChange('Income', event.target.checked)
+                }}
+              >
+                {t('transactions.type.income')}
+              </Checkbox>
+            </Space>
+          )
+        },
+        render: (value: CategoryDto['type']) => (
+          <Tag
+            className={
+              value === 'Income'
+                ? 'category-type-tag category-type-tag-income'
+                : 'category-type-tag category-type-tag-expense'
+            }
+          >
+            {t(`transactions.type.${value.toLowerCase() as 'income' | 'expense'}`)}
+          </Tag>
+        ),
+      },
+      {
         title: t('categories.columns.finances'),
         key: 'finances',
         align: 'right',
@@ -130,6 +182,7 @@ export function CategoriesTable({
                   setEditingCategory(record)
                   editForm.setFieldsValue({
                     name: record.name,
+                    type: record.type,
                   })
                 }}
                 disabled={isDeletingCategory}
@@ -169,6 +222,7 @@ export function CategoriesTable({
   function openCreateModal() {
     createForm.setFieldsValue({
       name: '',
+      type: 'Expense',
     })
     setIsCreateModalOpen(true)
   }
@@ -186,6 +240,7 @@ export function CategoriesTable({
     try {
       await onCreateCategory({
         name: values.name.trim(),
+        type: values.type,
       })
       setIsCreateModalOpen(false)
       createForm.resetFields()
@@ -205,6 +260,7 @@ export function CategoriesTable({
     try {
       await onUpdateCategory(editingCategory.id, {
         name: values.name.trim(),
+        type: values.type,
       })
       messageApi.success(t('categories.edit.success'))
     } catch (error) {
@@ -311,6 +367,14 @@ export function CategoriesTable({
           <Form.Item name="name" label={t('categories.columns.name')} rules={nameRules}>
             <Input />
           </Form.Item>
+          <Form.Item name="type" label={t('transactions.columns.type')} rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: 'Expense', label: t('transactions.type.expense') },
+                { value: 'Income', label: t('transactions.type.income') },
+              ]}
+            />
+          </Form.Item>
         </Form>
       </Modal>
 
@@ -355,6 +419,14 @@ export function CategoriesTable({
         >
           <Form.Item name="name" label={t('categories.columns.name')} rules={nameRules}>
             <Input />
+          </Form.Item>
+          <Form.Item name="type" label={t('transactions.columns.type')} rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: 'Expense', label: t('transactions.type.expense') },
+                { value: 'Income', label: t('transactions.type.income') },
+              ]}
+            />
           </Form.Item>
         </Form>
       </Modal>

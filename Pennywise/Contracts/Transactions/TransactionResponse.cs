@@ -1,3 +1,5 @@
+using Pennywise.Domain.Entities;
+
 namespace Pennywise.Contracts.Transactions;
 
 /// <summary>
@@ -19,6 +21,11 @@ public sealed class TransactionResponse
     /// Related category identifier.
     /// </summary>
     public Guid CategoryId { get; set; }
+
+    /// <summary>
+    /// Type of the transaction (Income or Expense).
+    /// </summary>
+    public TransactionType Type { get; set; }
 
     /// <summary>
     /// Booking date of the transaction.

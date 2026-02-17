@@ -174,6 +174,7 @@ public sealed class AccountRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             AccountId = accountId,
             CategoryId = categoryId,
+            Type = TransactionType.Expense,
             BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = -15m,
             Note = "Milk",

@@ -76,6 +76,7 @@ public sealed class TransactionsControllerReferenceValidationTests
             Id = Guid.NewGuid(),
             AccountId = Guid.NewGuid(),
             CategoryId = Guid.NewGuid(),
+            Type = TransactionType.Expense,
             BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 25m,
             Note = "Lunch",
@@ -138,6 +139,7 @@ public sealed class TransactionsControllerReferenceValidationTests
         {
             AccountId = accountId,
             CategoryId = categoryId,
+            Type = TransactionType.Expense,
             BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 10m,
             Note = "Coffee"
@@ -150,6 +152,7 @@ public sealed class TransactionsControllerReferenceValidationTests
         {
             AccountId = accountId,
             CategoryId = categoryId,
+            Type = TransactionType.Income,
             BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
             Amount = 30m,
             Note = "Updated"
