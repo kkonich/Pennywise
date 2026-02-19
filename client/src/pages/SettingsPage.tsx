@@ -1,7 +1,8 @@
-import { Button, Card, Form, Modal, Select, Space, Typography, message } from 'antd'
+import { Button, Card, Form, Modal, Select, Space, Switch, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { COMMON_CURRENCIES } from '../constants/currencies'
+import { useDemoData } from '../hooks/useDemoData'
 import { useUserSettings } from '../hooks/useUserSettings'
 
 type SettingsFormValues = {
@@ -12,6 +13,8 @@ export function SettingsPage() {
   const { t } = useTranslation()
   const [messageApi, messageContextHolder] = message.useMessage()
   const { settings, isLoading, error, updateCurrency, isUpdating } = useUserSettings()
+  const { exists: demoDataExists, isLoading: isDemoDataLoading, error: demoDataError, toggle, isUpdating: isDemoDataUpdating } =
+    useDemoData()
   const [form] = Form.useForm<SettingsFormValues>()
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const watchedCurrencyCode = Form.useWatch('currencyCode', form)
@@ -24,7 +27,10 @@ export function SettingsPage() {
     if (error) {
       messageApi.error(error)
     }
-  }, [error, messageApi])
+    if (demoDataError) {
+      messageApi.error(demoDataError)
+    }
+  }, [error, demoDataError, messageApi])
 
   useEffect(() => {
     if (!settings) {
@@ -113,6 +119,37 @@ export function SettingsPage() {
             </div>
           </Form>
         </div>
+
+        {import.meta.env.DEV ? (
+          <div style={{ borderTop: '1px solid var(--color-border-secondary)', paddingTop: 16 }}>
+            <Typography.Title level={4} style={{ marginBottom: 4 }}>
+              {t('settings.demoData.title')}
+            </Typography.Title>
+            <Typography.Paragraph
+              type="secondary"
+              style={{ marginBottom: 12, color: 'var(--color-text-secondary)' }}
+            >
+              {t('settings.demoData.description')}
+            </Typography.Paragraph>
+            <Switch
+              checked={demoDataExists}
+              onChange={async (checked) => {
+                try {
+                  await toggle(checked)
+                  messageApi.success(
+                    checked
+                      ? t('settings.demoData.enabledMessage')
+                      : t('settings.demoData.disabledMessage'),
+                  )
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : t('settings.demoData.error')
+                  messageApi.error(msg)
+                }
+              }}
+              loading={isDemoDataLoading || isDemoDataUpdating}
+            />
+          </div>
+        ) : null}
       </Space>
 
       <Modal

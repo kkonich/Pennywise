@@ -215,6 +215,13 @@ const de = {
         required: 'Bitte eine Währung auswählen.',
         appliesGlobally: 'Gilt für alle Salden und Buchungen.',
       },
+      demoData: {
+        title: 'Demo-Daten (dev mode)',
+        description: 'Erstelle oder lösche einen vordefinierten Beispieldatensatz.',
+        enabledMessage: 'Demo-Daten eingespielt.',
+        disabledMessage: 'Demo-Daten entfernt.',
+        error: 'Aktualisierung der Demo-Daten fehlgeschlagen.',
+      },
     },
   },
 } as const

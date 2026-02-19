@@ -214,6 +214,13 @@ const en = {
         required: 'Please choose a currency.',
         appliesGlobally: 'Applies to all balances and transactions.',
       },
+      demoData: {
+        title: 'Demo data (dev mode)',
+        description: 'Insert or clear a predefined sample data set.',
+        enabledMessage: 'Demo data seeded.',
+        disabledMessage: 'Demo data removed.',
+        error: 'Updating demo data failed.',
+      },
     },
   },
 } as const
