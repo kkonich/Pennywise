@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Pennywise.Application.Interfaces;
 using Pennywise.Infrastructure.Data;
 using Pennywise.Infrastructure.Repositories;
+using Pennywise.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+builder.Services.AddScoped<IDemoDataService, DemoDataService>();
 
 // Serialize enums as strings (e.g. "Income") instead of numeric values (e.g. 1).
 builder.Services.AddControllers()
