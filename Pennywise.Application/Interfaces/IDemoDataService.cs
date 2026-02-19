@@ -12,5 +12,6 @@ public enum DemoDataSeedResult
 public interface IDemoDataService
 {
     Task<DemoDataSeedResult> SeedAsync(CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
     Task<bool> ClearAsync(CancellationToken cancellationToken = default);
 }

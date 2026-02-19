@@ -32,7 +32,9 @@ public sealed class DemoDataServiceTests
         await using var context = CreateContext(nameof(SeedAsync_InsertsOnce_AndIsIdempotent));
         var service = new DemoDataService(context);
 
+        Assert.False(await service.ExistsAsync());
         var first = await service.SeedAsync();
+        Assert.True(await service.ExistsAsync());
         var second = await service.SeedAsync();
 
         Assert.Equal(DemoDataSeedResult.Created, first);
@@ -59,6 +61,7 @@ public sealed class DemoDataServiceTests
         var result = await service.SeedAsync();
 
         Assert.Equal(DemoDataSeedResult.AlreadySeeded, result);
+        Assert.True(await service.ExistsAsync());
         Assert.Single(context.Accounts);
         Assert.Equal(0, await context.Transactions.CountAsync());
     }
@@ -75,6 +78,7 @@ public sealed class DemoDataServiceTests
 
         Assert.True(removedFirst);
         Assert.False(removedSecond);
+        Assert.False(await service.ExistsAsync());
         Assert.Equal(0, await context.Accounts.CountAsync());
         Assert.Equal(0, await context.Categories.CountAsync());
         Assert.Equal(0, await context.Transactions.CountAsync());
@@ -100,6 +104,28 @@ public sealed class DemoDataServiceTests
 
         Assert.Single(context.Accounts); // the non-demo account remains
         Assert.Equal(otherAccountId, context.Accounts.Single().Id);
+        Assert.False(await service.ExistsAsync());
+    }
+
+    [Fact]
+    public async Task ExistsAsync_IsTrue_WhenAnyDemoTransactionPresent()
+    {
+        await using var context = CreateContext(nameof(ExistsAsync_IsTrue_WhenAnyDemoTransactionPresent));
+        var service = new DemoDataService(context);
+
+        context.Transactions.Add(new Transaction
+        {
+            Id = new Guid("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaa1"),
+            AccountId = Guid.NewGuid(),
+            CategoryId = Guid.NewGuid(),
+            Type = TransactionType.Income,
+            Amount = 10,
+            BookedOn = DateOnly.FromDateTime(DateTime.UtcNow),
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+        await context.SaveChangesAsync();
+
+        Assert.True(await service.ExistsAsync());
     }
 }
 
@@ -110,6 +136,7 @@ public sealed class DemoDataControllerTests
         var service = new Mock<IDemoDataService>();
         service.Setup(s => s.SeedAsync(It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(seedResult);
         service.Setup(s => s.ClearAsync(It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(clearResult);
+        service.Setup(s => s.ExistsAsync(It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(true);
 
         var env = new Mock<Microsoft.Extensions.Hosting.IHostEnvironment>();
         env.Setup(e => e.IsDevelopment()).Returns(isDev);
@@ -166,5 +193,30 @@ public sealed class DemoDataControllerTests
         var action = await controller.Clear(default);
         var objectResult = Assert.IsType<Microsoft.AspNetCore.Mvc.ObjectResult>(action);
         Assert.Equal(StatusCodes.Status404NotFound, objectResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task Exists_Returns404_WhenNotDev()
+    {
+        var controller = CreateController(DemoDataSeedResult.Created, clearResult: true, isDev: false);
+        var result = await controller.Exists(default);
+        Assert.IsType<Microsoft.AspNetCore.Mvc.NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task Exists_ReturnsOk_WithFlag_InDev()
+    {
+        var service = new Mock<IDemoDataService>();
+        service.Setup(s => s.ExistsAsync(It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(true);
+
+        var env = new Mock<IHostEnvironment>();
+        env.Setup(e => e.IsDevelopment()).Returns(true);
+
+        var controller = new DemoDataController(service.Object, env.Object);
+
+        var action = await controller.Exists(default);
+        var ok = Assert.IsType<Microsoft.AspNetCore.Mvc.OkObjectResult>(action);
+        dynamic payload = ok.Value!;
+        Assert.True((bool)payload.exists);
     }
 }

@@ -47,6 +47,21 @@ public sealed class DemoDataController : ControllerBase
     }
 
     /// <summary>
+    /// Checks whether the demo data set is already present.
+    /// </summary>
+    [HttpGet("seed")]
+    public async Task<ActionResult> Exists(CancellationToken cancellationToken)
+    {
+        if (!_environment.IsDevelopment())
+        {
+            return NotFound();
+        }
+
+        var exists = await _demoDataService.ExistsAsync(cancellationToken);
+        return Ok(new { exists });
+    }
+
+    /// <summary>
     /// Removes the previously inserted demo data set. If not present, returns 404.
     /// </summary>
     [HttpDelete("seed")]

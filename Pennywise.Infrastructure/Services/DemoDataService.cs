@@ -12,31 +12,35 @@ public sealed class DemoDataService : IDemoDataService
 {
     private readonly PennywiseDbContext _dbContext;
     private static readonly DemoData Demo = BuildDemoData();
+    private static readonly Guid[] SampleAccountIds = Demo.Accounts.Select(a => a.Id).ToArray();
+    private static readonly Guid[] SampleCategoryIds = Demo.Categories.Select(c => c.Id).ToArray();
+    private static readonly Guid[] SampleTransactionIds = Demo.Transactions.Select(t => t.Id).ToArray();
 
     public DemoDataService(PennywiseDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<DemoDataSeedResult> SeedAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
     {
-        var sampleAccountIds = Demo.Accounts.Select(account => account.Id).ToArray();
-        var sampleCategoryIds = Demo.Categories.Select(category => category.Id).ToArray();
-        var sampleTransactionIds = Demo.Transactions.Select(transaction => transaction.Id).ToArray();
-
         var accountsExist = await _dbContext.Accounts
             .IgnoreQueryFilters()
-            .AnyAsync(account => sampleAccountIds.Contains(account.Id), cancellationToken);
+            .AnyAsync(account => SampleAccountIds.Contains(account.Id), cancellationToken);
 
         var categoriesExist = await _dbContext.Categories
             .IgnoreQueryFilters()
-            .AnyAsync(category => sampleCategoryIds.Contains(category.Id), cancellationToken);
+            .AnyAsync(category => SampleCategoryIds.Contains(category.Id), cancellationToken);
 
         var transactionsExist = await _dbContext.Transactions
             .IgnoreQueryFilters()
-            .AnyAsync(transaction => sampleTransactionIds.Contains(transaction.Id), cancellationToken);
+            .AnyAsync(transaction => SampleTransactionIds.Contains(transaction.Id), cancellationToken);
 
-        if (accountsExist || categoriesExist || transactionsExist)
+        return accountsExist || categoriesExist || transactionsExist;
+    }
+
+    public async Task<DemoDataSeedResult> SeedAsync(CancellationToken cancellationToken = default)
+    {
+        if (await ExistsAsync(cancellationToken))
         {
             return DemoDataSeedResult.AlreadySeeded;
         }
@@ -55,18 +59,7 @@ public sealed class DemoDataService : IDemoDataService
 
     public async Task<bool> ClearAsync(CancellationToken cancellationToken = default)
     {
-        var accountIds = Demo.Accounts.Select(a => a.Id).ToArray();
-        var categoryIds = Demo.Categories.Select(c => c.Id).ToArray();
-        var transactionIds = Demo.Transactions.Select(t => t.Id).ToArray();
-
-        var anyDemoData = await _dbContext.Transactions.IgnoreQueryFilters()
-            .AnyAsync(t => transactionIds.Contains(t.Id), cancellationToken)
-            || await _dbContext.Accounts.IgnoreQueryFilters()
-                .AnyAsync(a => accountIds.Contains(a.Id), cancellationToken)
-            || await _dbContext.Categories.IgnoreQueryFilters()
-                .AnyAsync(c => categoryIds.Contains(c.Id), cancellationToken);
-
-        if (!anyDemoData)
+        if (!await ExistsAsync(cancellationToken))
         {
             return false;
         }
@@ -74,17 +67,17 @@ public sealed class DemoDataService : IDemoDataService
         await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         var transactions = await _dbContext.Transactions.IgnoreQueryFilters()
-            .Where(t => transactionIds.Contains(t.Id))
+            .Where(t => SampleTransactionIds.Contains(t.Id))
             .ToListAsync(cancellationToken);
         _dbContext.Transactions.RemoveRange(transactions);
 
         var accounts = await _dbContext.Accounts.IgnoreQueryFilters()
-            .Where(a => accountIds.Contains(a.Id))
+            .Where(a => SampleAccountIds.Contains(a.Id))
             .ToListAsync(cancellationToken);
         _dbContext.Accounts.RemoveRange(accounts);
 
         var categories = await _dbContext.Categories.IgnoreQueryFilters()
-            .Where(c => categoryIds.Contains(c.Id))
+            .Where(c => SampleCategoryIds.Contains(c.Id))
             .ToListAsync(cancellationToken);
         _dbContext.Categories.RemoveRange(categories);
 
